@@ -1,1 +1,0 @@
-python main.py -data camelyon17 -m resnet -algo FedAvg -gr 500 -did 0 -eg 50 -go resnet -nc 5 | tee ../tmp/cam_fedavg_ft_console.output

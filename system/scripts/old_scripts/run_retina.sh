@@ -1,1 +1,0 @@
-python main.py -data retina -m resnet -algo FedAvg -gr 800 -did 0 -eg 20 -go resnet -nc 3 -lr 1e-3 | tee ../tmp/retina/fedavg_debug_console.output
