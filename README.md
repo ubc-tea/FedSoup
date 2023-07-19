@@ -12,7 +12,7 @@ Cross-silo federated learning (FL) enables the development of machine learning m
 
 Tiny Camelyon17 preprocessed dataset [download link](https://drive.google.com/file/d/1vFMEkm_l6_8KiPOayndbPEDgrek-_eZS/view?usp=drive_link).
 
-## Out-of-Domain Performance Evaluation
+## Local, Global and Out-of-Domain Performance Evaluation
 Prepare logs and saved model directories
 ```
 mkdir results
