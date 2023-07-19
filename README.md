@@ -12,7 +12,7 @@ Cross-silo federated learning (FL) enables the development of machine learning m
 
 Tiny Camelyon17 preprocessed dataset [download link](https://drive.google.com/file/d/1vFMEkm_l6_8KiPOayndbPEDgrek-_eZS/view?usp=drive_link).
 
-## Local and Global Performance Evaluation
+## Out-of-Domain Performance Evaluation
 Prepare logs and saved model directories
 ```
 mkdir results
@@ -20,12 +20,13 @@ cd system
 mkdir models
 ```
 
-```
-sh scripts/run_tiny_camelyon17.sh
-```
-
-## Out-of-Domain Performance Evaluation
 Specify the hold-out client index (e.g., 0)
 ```
 sh scripts/run_tiny_camelyon17_hoid0.sh
+```
+
+## Local and Global Performance Evaluation (no hold-out client)
+
+```
+sh scripts/run_tiny_camelyon17.sh
 ```
