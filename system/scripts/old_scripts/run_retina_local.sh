@@ -1,0 +1,1 @@
+python main.py -data retina -m resnet -algo Local -gr 500 -did 0 -go resnet_local -nc 3 -lr 1e-3 | tee ../tmp/retina/local_debug_console.output
