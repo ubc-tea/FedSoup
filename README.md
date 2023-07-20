@@ -1,7 +1,7 @@
 # FedSoup
 The official Pytorch implementation of paper "FedSoup: Improving Generalization and Personalization in Federated Learning via Selective Model Interpolation" accepted by MICCAI 2023
 
-Authors: Minghui Chen, Meirui Jiang, Qi Dou, Zehua Wang, Xiaoxiao Li.
+Authors: [Minghui Chen](https://chenminghui.com/), [Meirui Jiang](https://meiruijiang.github.io/MeiruiJiang/), [Qi Dou](https://www.cse.cuhk.edu.hk/~qdou/), [Zehua Wang](https://www.cse.cuhk.edu.hk/~qdou/), [Xiaoxiao Li](https://xxlya.github.io/xiaoxiao/).
 
 ![FedSoup](/img/FedSoupFramework.png)
 
@@ -30,3 +30,5 @@ sh scripts/run_tiny_camelyon17_hoid0.sh
 ```
 sh scripts/run_tiny_camelyon17.sh
 ```
+
+## Citation
