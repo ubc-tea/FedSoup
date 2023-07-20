@@ -20,7 +20,7 @@ cd system
 mkdir models
 ```
 
-Specify the hold-out client index (e.g., 0)
+Specify the hold-out client index (e.g., "-hoid 0")
 ```
 sh scripts/run_tiny_camelyon17_hoid0.sh
 ```
