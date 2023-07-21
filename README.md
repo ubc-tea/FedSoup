@@ -1,5 +1,5 @@
 # FedSoup
-The official Pytorch implementation of paper "FedSoup: Improving Generalization and Personalization in Federated Learning via Selective Model Interpolation" accepted by MICCAI 2023
+The official Pytorch implementation of paper "[FedSoup: Improving Generalization and Personalization in Federated Learning via Selective Model Interpolation](https://arxiv.org/abs/2307.10507)" accepted by MICCAI 2023
 
 Authors: [Minghui Chen](https://chenminghui.com/), [Meirui Jiang](https://meiruijiang.github.io/MeiruiJiang/), [Qi Dou](https://www.cse.cuhk.edu.hk/~qdou/), [Zehua Wang](https://www.cse.cuhk.edu.hk/~qdou/), [Xiaoxiao Li](https://xxlya.github.io/xiaoxiao/).
 
@@ -12,7 +12,7 @@ Cross-silo federated learning (FL) enables the development of machine learning m
 
 Tiny Camelyon17 preprocessed dataset [download link](https://drive.google.com/file/d/1vFMEkm_l6_8KiPOayndbPEDgrek-_eZS/view?usp=drive_link).
 
-## Local, Global and Out-of-Domain Performance Evaluation
+## Training and Local, Global and Out-of-Domain Performance Evaluation
 Prepare logs and saved model directories
 ```
 mkdir results
@@ -25,7 +25,7 @@ Specify the hold-out client index (e.g., "-hoid 0")
 sh scripts/run_tiny_camelyon17_hoid0.sh
 ```
 
-## Local and Global Performance Evaluation (no hold-out client)
+## Training and Local and Global Performance Evaluation (no hold-out client)
 
 ```
 sh scripts/run_tiny_camelyon17.sh
@@ -34,3 +34,4 @@ sh scripts/run_tiny_camelyon17.sh
 ## Acknowledgement
 
 ## Citation
+If you find this work helpful, feel free to cite our paper as follows:
