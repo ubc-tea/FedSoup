@@ -32,6 +32,17 @@ sh scripts/run_tiny_camelyon17.sh
 ```
 
 ## Acknowledgement
+We develop FedSoup on top of this [personalized federated learning platform](https://github.com/TsingZ0/PFL-Non-IID).
 
 ## Citation
 If you find this work helpful, feel free to cite our paper as follows:
+```
+@misc{chen2023fedsoup,
+    title={FedSoup: Improving Generalization and Personalization in Federated Learning via Selective Model Interpolation},
+    author={Minghui Chen and Meirui Jiang and Qi Dou and Zehua Wang and Xiaoxiao Li},
+    year={2023},
+    eprint={2307.10507},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
+}
+```
