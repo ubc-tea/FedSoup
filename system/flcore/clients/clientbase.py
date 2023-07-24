@@ -211,8 +211,8 @@ class Client(object):
         cur_one_num = 0
 
         for x, y in trainloader:
-            for i, (img, label) in enumerate(zip(x, y)):
-                if self.save_img:
+            if self.save_img:
+                for i, (img, label) in enumerate(zip(x, y)):
                     mean = (0.5, 0.5, 0.5)
                     std = (0.5, 0.5, 0.5)
                     t_mean = torch.FloatTensor(mean).view(3, 1, 1).expand(img.shape)
