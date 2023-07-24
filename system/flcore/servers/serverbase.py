@@ -41,7 +41,7 @@ class Server(object):
 
         self.rs_test_acc = []
         self.rs_test_auc = []
-        self.rs_train_loss = []
+        # self.rs_train_loss = []
 
         self.times = times
         self.eval_gap = args.eval_gap
@@ -192,7 +192,7 @@ class Server(object):
             with h5py.File(file_path, "w") as hf:
                 hf.create_dataset("rs_test_acc", data=self.rs_test_acc)
                 hf.create_dataset("rs_test_auc", data=self.rs_test_auc)
-                hf.create_dataset("rs_train_loss", data=self.rs_train_loss)
+                # hf.create_dataset("rs_train_loss", data=self.rs_train_loss)
 
     def save_item(self, item, item_name):
         if not os.path.exists(self.save_folder_name):
@@ -298,7 +298,7 @@ class Server(object):
     # evaluate selected clients
     def evaluate(self, acc=None, loss=None, ood_eval=False):
         stats = self.test_metrics()
-        stats_train = self.train_metrics()
+        # stats_train = self.train_metrics()
 
         test_acc = sum(stats[2]) * 1.0 / sum(stats[1])
         test_auc = sum(stats[3]) * 1.0 / sum(stats[1])
@@ -318,7 +318,7 @@ class Server(object):
             print("Client {} Test Accurancy: {:.4f}".format(c_id, test_acc_list[idx]))
             print("Client {} Test AUC: {:.4f}".format(c_id, test_auc_list[idx]))
 
-        train_loss = sum(stats_train[2]) * 1.0 / sum(stats_train[1])
+        # train_loss = sum(stats_train[2]) * 1.0 / sum(stats_train[1])
         accs = [a / n for a, n in zip(stats[2], stats[1])]
         aucs = [a / n for a, n in zip(stats[3], stats[1])]
 
@@ -339,12 +339,12 @@ class Server(object):
         #             c.best_model_dict = copy.deepcopy(c.model.state_dict())
         #     acc.append(test_acc)
 
-        if loss == None:
-            self.rs_train_loss.append(train_loss)
-        else:
-            loss.append(train_loss)
+        # if loss == None:
+        #     self.rs_train_loss.append(train_loss)
+        # else:
+        #     loss.append(train_loss)
 
-        print("Averaged Train Loss: {:.4f}".format(train_loss))
+        # print("Averaged Train Loss: {:.4f}".format(train_loss))
         print("Averaged Test Accurancy: {:.4f}".format(test_acc))
         print("Averaged Test AUC: {:.4f}".format(test_auc))
         # self.print_(test_acc, train_acc, train_loss)
@@ -389,7 +389,7 @@ class Server(object):
                 )
                 print("Client {} Test AUC: {:.4f}".format(c_id, test_auc_list[idx]))
 
-            train_loss = sum(stats_train[2]) * 1.0 / sum(stats_train[1])
+            # train_loss = sum(stats_train[2]) * 1.0 / sum(stats_train[1])
             accs = [a / n for a, n in zip(stats[2], stats[1])]
             aucs = [a / n for a, n in zip(stats[3], stats[1])]
 
@@ -476,10 +476,10 @@ class Server(object):
             # print("OOD Std Test Accurancy: {:.4f}".format(np.std(ood_accs)))
             # print("OOD Std Test AUC: {:.4f}".format(np.std(ood_aucs)))
 
-    def print_(self, test_acc, test_auc, train_loss):
-        print("Average Test Accurancy: {:.4f}".format(test_acc))
-        print("Average Test AUC: {:.4f}".format(test_auc))
-        print("Average Train Loss: {:.4f}".format(train_loss))
+    # def print_(self, test_acc, test_auc, train_loss):
+    #     print("Average Test Accurancy: {:.4f}".format(test_acc))
+    #     print("Average Test AUC: {:.4f}".format(test_auc))
+        # print("Average Train Loss: {:.4f}".format(train_loss))
 
     def check_done(self, acc_lss, top_cnt=None, div_value=None):
         for acc_ls in acc_lss:
