@@ -532,13 +532,13 @@ if __name__ == "__main__":
         default=False,
         help="Only Test-Time Adpatation on out-of-federation data (no training).",
     )
+
     parser.add_argument(
         "--save_img",
         type=bool,
         default=False,
         help="Saving some training samples of each client during training to visualize.",
     )
-
     args = parser.parse_args()
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.device_id
