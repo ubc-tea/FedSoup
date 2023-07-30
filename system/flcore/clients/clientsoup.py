@@ -135,48 +135,6 @@ class clientSoup(Client):
                 self.model.load_state_dict(self.wa_model.state_dict())
             del self.last_global_model, self.wa_model, self.update_wa_model
 
-            # # forced interpolation of local and global
-            # if self.per_global_model_num == 0:
-            #     self.per_global_model_num += 1
-            #     self.per_global_model = copy.deepcopy(self.model)
-            #     self.per_global_model.load_state_dict(self.last_global_model.state_dict())
-            #     for param, per_global_param in zip(self.model.parameters(), self.per_global_model.parameters()):
-            #         param.data = param.data * 0.5 + per_global_param.data * 0.5
-            #         # param.data = param.data * (1 - self.wa_alpha) + per_global_param.data * self.wa_alpha
-            # else:
-            #     self.wa_model = copy.deepcopy(self.model)
-            #     self.update_wa_model = copy.deepcopy(self.model)
-            #     self.wa_model.load_state_dict(self.model.state_dict())
-            #     self.update_wa_model.load_state_dict(self.model.state_dict())
-
-            #     for wa_param, u_wa_param, global_param, last_global_model in zip(self.wa_model.parameters(), self.update_wa_model.parameters(), self.per_global_model.parameters(), self.last_global_model.parameters()):
-            #         wa_param.data = wa_param.data.clone() * (1.0 / (self.per_global_model_num + 1.0)) + global_param.data.clone() * (self.per_global_model_num / (self.per_global_model_num + 1.0))
-            #         u_wa_param.data = u_wa_param.data.clone() * (1.0 / (self.per_global_model_num + 2.0)) +  global_param.data.clone() * (self.per_global_model_num / (self.per_global_model_num + 2.0)) + last_global_model.data.clone() * (1.0 / (self.per_global_model_num + 2.0))
-
-            #         # wa_param.data = wa_param.data.clone() * (1 - self.wa_alpha) + global_param.data.clone() * self.wa_alpha
-            #         # u_wa_param.data = u_wa_param.data.clone() * (1 - self.wa_alpha) + (1.0 / (self.per_global_model_num + 1.0)) * (self.per_global_model_num * global_param.data.clone() + last_global_model.data.clone()) * self.wa_alpha
-
-            #         # preparing for updated per_global_model
-            #         last_global_model.data = (1.0 / (self.per_global_model_num + 1.0)) * (self.per_global_model_num * global_param.data.clone() + last_global_model.data.clone())
-
-            #     wa_acc = self.quick_test(self.wa_model)
-            #     update_wa_acc = self.quick_test(self.update_wa_model)
-
-            #     print("Original Weight Averaging Accuracy: ", wa_acc)
-            #     print("Updated Weight Averaging Accuracy: ", update_wa_acc)
-
-            #     if update_wa_acc > wa_acc:
-            #         print("Update Personalized Global Model......")
-            #         self.model.load_state_dict(self.update_wa_model.state_dict())
-            #         self.per_global_model.load_state_dict(self.last_global_model.state_dict())
-            #         self.per_global_model_num += 1
-            #         print("Client ID: ", self.id)
-            #         print("Personalized Global Model Num: ", self.per_global_model_num)
-            #     else:
-            #         print("Remain the same Personalized Global Model.")
-            #         self.model.load_state_dict(self.wa_model.state_dict())
-            #     del self.last_global_model, self.wa_model, self.update_wa_model
-
         self.train_time_cost["num_rounds"] += 1
         self.train_time_cost["total_cost"] += time.time() - start_time
 
