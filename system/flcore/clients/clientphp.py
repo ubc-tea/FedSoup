@@ -9,10 +9,12 @@ from flcore.clients.clientbase import Client
 class clientPHP(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
-        
+
         self.loss = nn.CrossEntropyLoss()
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=self.learning_rate
+        )
 
         self.mu = args.mu / args.global_rounds
         self.lamda = args.lamda
@@ -24,7 +26,7 @@ class clientPHP(Client):
 
     def train(self):
         trainloader = self.load_train_data()
-        
+
         start_time = time.time()
 
         # self.model.to(self.device)
@@ -46,15 +48,17 @@ class clientPHP(Client):
                 self.optimizer.zero_grad()
                 output = self.model(x)
                 loss = self.loss(output, y) * (1 - self.lamda)
-                loss += MMD(self.model.base(x), self.model_s.base(x), 'rbf', self.device) * self.lamda
+                loss += (
+                    MMD(self.model.base(x), self.model_s.base(x), "rbf", self.device)
+                    * self.lamda
+                )
                 loss.backward()
                 self.optimizer.step()
 
         # self.model.cpu()
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def set_parameters(self, model, R):
         mu = self.mu * R
@@ -64,9 +68,9 @@ class clientPHP(Client):
 
         for new_param, old_param in zip(model.parameters(), self.model.parameters()):
             old_param.data = new_param * (1 - mu) + old_param * mu
-            
 
-def MMD(x, y, kernel, device='cpu'):
+
+def MMD(x, y, kernel, device="cpu"):
     """Emprical maximum mean discrepancy. The lower the result
        the more evidence that distributions are the same.
 
@@ -76,31 +80,31 @@ def MMD(x, y, kernel, device='cpu'):
         kernel: kernel type such as "multiscale" or "rbf"
     """
     xx, yy, zz = torch.mm(x, x.t()), torch.mm(y, y.t()), torch.mm(x, y.t())
-    rx = (xx.diag().unsqueeze(0).expand_as(xx))
-    ry = (yy.diag().unsqueeze(0).expand_as(yy))
-    
-    dxx = rx.t() + rx - 2. * xx # Used for A in (1)
-    dyy = ry.t() + ry - 2. * yy # Used for B in (1)
-    dxy = rx.t() + ry - 2. * zz # Used for C in (1)
-    
-    XX, YY, XY = (torch.zeros(xx.shape).to(device),
-                  torch.zeros(xx.shape).to(device),
-                  torch.zeros(xx.shape).to(device))
-    
+    rx = xx.diag().unsqueeze(0).expand_as(xx)
+    ry = yy.diag().unsqueeze(0).expand_as(yy)
+
+    dxx = rx.t() + rx - 2.0 * xx  # Used for A in (1)
+    dyy = ry.t() + ry - 2.0 * yy  # Used for B in (1)
+    dxy = rx.t() + ry - 2.0 * zz  # Used for C in (1)
+
+    XX, YY, XY = (
+        torch.zeros(xx.shape).to(device),
+        torch.zeros(xx.shape).to(device),
+        torch.zeros(xx.shape).to(device),
+    )
+
     if kernel == "multiscale":
-        
         bandwidth_range = [0.2, 0.5, 0.9, 1.3]
         for a in bandwidth_range:
-            XX += a**2 * (a**2 + dxx)**-1
-            YY += a**2 * (a**2 + dyy)**-1
-            XY += a**2 * (a**2 + dxy)**-1
-            
+            XX += a**2 * (a**2 + dxx) ** -1
+            YY += a**2 * (a**2 + dyy) ** -1
+            XY += a**2 * (a**2 + dxy) ** -1
+
     if kernel == "rbf":
-      
         bandwidth_range = [10, 15, 20, 50]
         for a in bandwidth_range:
-            XX += torch.exp(-0.5*dxx/a)
-            YY += torch.exp(-0.5*dyy/a)
-            XY += torch.exp(-0.5*dxy/a)
-      
-    return torch.mean(XX + YY - 2. * XY)
+            XX += torch.exp(-0.5 * dxx / a)
+            YY += torch.exp(-0.5 * dyy / a)
+            XY += torch.exp(-0.5 * dxy / a)
+
+    return torch.mean(XX + YY - 2.0 * XY)

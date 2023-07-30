@@ -19,13 +19,12 @@ class FedPHP(Server):
         # self.load_model()
         self.Budget = []
 
-
     def train(self):
-        for i in range(self.global_rounds+1):
+        for i in range(self.global_rounds + 1):
             self.selected_clients = self.select_clients()
             self.send_models(i)
 
-            if i%self.eval_gap == 0:
+            if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
                 print("\nEvaluate global model")
                 self.evaluate()
@@ -52,14 +51,13 @@ class FedPHP(Server):
         self.save_results()
         self.save_global_model()
 
-
     def send_models(self, R):
-        assert (len(self.selected_clients) > 0)
+        assert len(self.selected_clients) > 0
 
         for client in self.selected_clients:
             start_time = time.time()
 
             client.set_parameters(self.global_model, R)
 
-            client.send_time_cost['num_rounds'] += 1
-            client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+            client.send_time_cost["num_rounds"] += 1
+            client.send_time_cost["total_cost"] += 2 * (time.time() - start_time)

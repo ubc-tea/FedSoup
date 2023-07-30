@@ -17,12 +17,12 @@ class PerAvg(Server):
         print("Finished creating server and clients.")
 
     def train(self):
-        for i in range(self.global_rounds+1):
+        for i in range(self.global_rounds + 1):
             self.selected_clients = self.select_clients()
             # send all parameter for clients
             self.send_models()
 
-            if i%self.eval_gap == 0:
+            if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
                 print("\nEvaluate global model with one step update")
                 self.evaluate_one_step()
@@ -51,7 +51,6 @@ class PerAvg(Server):
         self.save_results()
         self.save_global_model()
 
-
     def evaluate_one_step(self):
         models_temp = []
         for c in self.clients:
@@ -64,7 +63,7 @@ class PerAvg(Server):
         for i, c in enumerate(self.clients):
             c.clone_model(models_temp[i], c.model)
 
-        test_acc = sum(stats[2])*1.0 / sum(stats[1])
-        
+        test_acc = sum(stats[2]) * 1.0 / sum(stats[1])
+
         self.rs_test_acc.append(test_acc)
         print("Average Test Accurancy: {:.4f}".format(test_acc))

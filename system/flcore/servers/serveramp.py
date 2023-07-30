@@ -23,11 +23,11 @@ class FedAMP(Server):
         print("Finished creating server and clients.")
 
     def train(self):
-        for i in range(self.global_rounds+1):
+        for i in range(self.global_rounds + 1):
             self.selected_clients = self.select_clients()
             self.send_models()
 
-            if i%self.eval_gap == 0:
+            if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
                 print("\nEvaluate global model")
                 self.evaluate()
@@ -53,9 +53,8 @@ class FedAMP(Server):
         self.save_results()
         self.save_global_model()
 
-
     def send_models(self):
-        assert (len(self.selected_clients) > 0)
+        assert len(self.selected_clients) > 0
 
         if len(self.uploaded_models) > 0:
             for c in self.selected_clients:
@@ -87,8 +86,8 @@ class FedAMP(Server):
 
                 c.set_parameters(mu, coef_self)
 
-                c.send_time_cost['num_rounds'] += 1
-                c.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+                c.send_time_cost["num_rounds"] += 1
+                c.send_time_cost["total_cost"] += 2 * (time.time() - start_time)
 
     def e(self, x):
-        return math.exp(-x/self.sigma)/self.sigma
+        return math.exp(-x / self.sigma) / self.sigma

@@ -54,19 +54,12 @@ max_len = 200
 hidden_dim = 32
 
 
-
-
-
 def run(args):
     time_list = []
     reporter = MemReporter()
     model_str = args.model
 
     for i in range(args.prev, args.times):
-
-
-
-        
         print(f"\n============= Running time: {i}th =============")
         print("Creating server and clients ...")
         start = time.time()
@@ -544,10 +537,18 @@ if __name__ == "__main__":
         default=False,
         help="Saving some training samples of each client during training to visualize.",
     )
-    parser.add_argument("--pruning", default=False,
+    parser.add_argument(
+        "--pruning",
+        default=False,
         action=argparse.BooleanOptionalAction,
-        help="training with sparse neural network.")
-    parser.add_argument("--sparsity_ratio", type=float, default=0.9, help="Sparsity ratio of pruned neural network.")
+        help="training with sparse neural network.",
+    )
+    parser.add_argument(
+        "--sparsity_ratio",
+        type=float,
+        default=0.9,
+        help="Sparsity ratio of pruned neural network.",
+    )
 
     args = parser.parse_args()
 

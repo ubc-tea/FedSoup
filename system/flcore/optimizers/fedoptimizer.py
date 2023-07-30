@@ -9,14 +9,14 @@ class PerAvgOptimizer(Optimizer):
 
     def step(self, beta=0):
         for group in self.param_groups:
-            for p in group['params']:
+            for p in group["params"]:
                 if p.grad is None:
                     continue
                 d_p = p.grad.data
-                if(beta != 0):
+                if beta != 0:
                     p.data.add_(other=d_p, alpha=-beta)
                 else:
-                    p.data.add_(other=d_p, alpha=-group['lr'])
+                    p.data.add_(other=d_p, alpha=-group["lr"])
 
 
 class FEDLOptimizer(Optimizer):
@@ -31,9 +31,15 @@ class FEDLOptimizer(Optimizer):
     def step(self):
         for group in self.param_groups:
             i = 0
-            for p in group['params']:
-                p.data.add_(- group['lr'] * (p.grad.data + group['eta'] * \
-                    self.server_grads[i] - self.pre_grads[i]))
+            for p in group["params"]:
+                p.data.add_(
+                    -group["lr"]
+                    * (
+                        p.grad.data
+                        + group["eta"] * self.server_grads[i]
+                        - self.pre_grads[i]
+                    )
+                )
                 i += 1
 
 
@@ -48,12 +54,16 @@ class pFedMeOptimizer(Optimizer):
         group = None
         weight_update = local_model.copy()
         for group in self.param_groups:
-            for p, localweight in zip(group['params'], weight_update):
+            for p, localweight in zip(group["params"], weight_update):
                 localweight = localweight.to(device)
                 # approximate local model
-                p.data = p.data - group['lr'] * (p.grad.data + group['lamda'] * (p.data - localweight.data) + group['mu'] * p.data)
+                p.data = p.data - group["lr"] * (
+                    p.grad.data
+                    + group["lamda"] * (p.data - localweight.data)
+                    + group["mu"] * p.data
+                )
 
-        return group['params']
+        return group["params"]
 
 
 # class pFedMeOptimizer(Optimizer):
@@ -63,7 +73,7 @@ class pFedMeOptimizer(Optimizer):
 #             raise ValueError("Invalid learning rate: {}".format(lr))
 #         defaults = dict(lr=lr, lamda=lamda, mu = mu)
 #         super(pFedMeOptimizer, self).__init__(params, defaults)
-    
+
 #     def step(self, local_weight_updated, closure=None):
 #         loss = None
 #         if closure is not None:
@@ -73,7 +83,7 @@ class pFedMeOptimizer(Optimizer):
 #             for p, localweight in zip( group['params'], weight_update):
 #                 p.data = p.data - group['lr'] * (p.grad.data + group['lamda'] * (p.data - localweight.data) + group['mu']*p.data)
 #         return  group['params'], loss
-    
+
 #     def update_param(self, local_weight_updated, closure=None):
 #         loss = None
 #         if closure is not None:
@@ -93,17 +103,17 @@ class APFLOptimizer(Optimizer):
 
     def step(self, beta=1, n_k=1):
         for group in self.param_groups:
-            for p in group['params']:
+            for p in group["params"]:
                 if p.grad is None:
                     continue
                 d_p = beta * n_k * p.grad.data
-                p.data.add_(-group['lr'], d_p)
+                p.data.add_(-group["lr"], d_p)
 
 
 class PerturbedGradientDescent(Optimizer):
     def __init__(self, params, lr=0.01, mu=0.0):
         if lr < 0.0:
-            raise ValueError(f'Invalid learning rate: {lr}')
+            raise ValueError(f"Invalid learning rate: {lr}")
 
         default = dict(lr=lr, mu=mu)
 
@@ -112,7 +122,7 @@ class PerturbedGradientDescent(Optimizer):
     @torch.no_grad()
     def step(self, global_params, device):
         for group in self.param_groups:
-            for p, g in zip(group['params'], global_params):
+            for p, g in zip(group["params"], global_params):
                 g = g.to(device)
-                d_p = p.grad.data + group['mu'] * (p.data - g.data)
-                p.data.add_(d_p, alpha=-group['lr'])
+                d_p = p.grad.data + group["mu"] * (p.data - g.data)
+                p.data.add_(d_p, alpha=-group["lr"])

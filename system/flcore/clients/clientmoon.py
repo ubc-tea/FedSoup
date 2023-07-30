@@ -10,10 +10,12 @@ from flcore.clients.clientbase import Client
 class clientMOON(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
-        
+
         self.loss = nn.CrossEntropyLoss()
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=self.learning_rate
+        )
 
         self.tau = args.tau
         self.mu = args.mu
@@ -48,7 +50,13 @@ class clientMOON(Client):
 
                 rep_old = self.old_model.base(x).detach()
                 rep_global = self.global_model.base(x).detach()
-                loss_con = - torch.log(torch.exp(F.cosine_similarity(rep, rep_global) / self.tau) / (torch.exp(F.cosine_similarity(rep, rep_global) / self.tau) + torch.exp(F.cosine_similarity(rep, rep_old) / self.tau)))
+                loss_con = -torch.log(
+                    torch.exp(F.cosine_similarity(rep, rep_global) / self.tau)
+                    / (
+                        torch.exp(F.cosine_similarity(rep, rep_global) / self.tau)
+                        + torch.exp(F.cosine_similarity(rep, rep_old) / self.tau)
+                    )
+                )
                 loss += self.mu * torch.mean(loss_con)
 
                 loss.backward()
@@ -57,9 +65,8 @@ class clientMOON(Client):
         # self.model.cpu()
         self.old_model = copy.deepcopy(self.model)
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def set_parameters(self, model):
         for new_param, old_param in zip(model.parameters(), self.model.parameters()):

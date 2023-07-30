@@ -11,12 +11,12 @@ class Norm(nn.Module):
     with batch-wise statistics, just like batch norm does during training.
     """
 
-    def __init__(self, model, eps=1e-5, momentum=0.1,
-                 reset_stats=False, no_stats=False):
+    def __init__(
+        self, model, eps=1e-5, momentum=0.1, reset_stats=False, no_stats=False
+    ):
         super().__init__()
         self.model = model
-        self.model = configure_model(model, eps, momentum, reset_stats,
-                                     no_stats)
+        self.model = configure_model(model, eps, momentum, reset_stats, no_stats)
         self.model_state = deepcopy(self.model.state_dict())
 
     def forward(self, x):
@@ -38,7 +38,7 @@ def collect_stats(model):
         if isinstance(m, nn.BatchNorm2d):
             state = m.state_dict()
             if m.affine:
-                del state['weight'], state['bias']
+                del state["weight"], state["bias"]
             for ns, s in state.items():
                 stats.append(s)
                 names.append(f"{nm}.{ns}")

@@ -26,13 +26,13 @@ cfg = _C
 _C.MODEL = CfgNode()
 
 # Check https://github.com/RobustBench/robustbench for available models
-_C.MODEL.ARCH = 'Standard'
+_C.MODEL.ARCH = "Standard"
 
 # Choice of (source, norm, tent)
 # - source: baseline without adaptation
 # - norm: test-time normalization
 # - tent: test-time entropy minimization (ours)
-_C.MODEL.ADAPTATION = 'source'
+_C.MODEL.ADAPTATION = "source"
 
 # By default tent is online, with updates persisting across batches.
 # To make adaptation episodic, and reset the model for each batch, choose True.
@@ -42,13 +42,26 @@ _C.MODEL.EPISODIC = False
 _C.CORRUPTION = CfgNode()
 
 # Dataset for evaluation
-_C.CORRUPTION.DATASET = 'cifar10'
+_C.CORRUPTION.DATASET = "cifar10"
 
 # Check https://github.com/hendrycks/robustness for corruption details
-_C.CORRUPTION.TYPE = ['gaussian_noise', 'shot_noise', 'impulse_noise',
-                      'defocus_blur', 'glass_blur', 'motion_blur', 'zoom_blur',
-                      'snow', 'frost', 'fog', 'brightness', 'contrast',
-                      'elastic_transform', 'pixelate', 'jpeg_compression']
+_C.CORRUPTION.TYPE = [
+    "gaussian_noise",
+    "shot_noise",
+    "impulse_noise",
+    "defocus_blur",
+    "glass_blur",
+    "motion_blur",
+    "zoom_blur",
+    "snow",
+    "frost",
+    "fog",
+    "brightness",
+    "contrast",
+    "elastic_transform",
+    "pixelate",
+    "jpeg_compression",
+]
 _C.CORRUPTION.SEVERITY = [5, 4, 3, 2, 1]
 
 # Number of examples to evaluate (10000 for all samples in CIFAR-10)
@@ -73,7 +86,7 @@ _C.OPTIM.STEPS = 1
 _C.OPTIM.LR = 1e-3
 
 # Choices: Adam, SGD
-_C.OPTIM.METHOD = 'Adam'
+_C.OPTIM.METHOD = "Adam"
 
 # Beta
 _C.OPTIM.BETA = 0.9
@@ -123,7 +136,7 @@ _C.CKPT_DIR = "./ckpt"
 _C.LOG_DEST = "log.txt"
 
 # Log datetime
-_C.LOG_TIME = ''
+_C.LOG_TIME = ""
 
 # # Config destination (in SAVE_DIR)
 # _C.CFG_DEST = "cfg.yaml"
@@ -169,10 +182,15 @@ def load_cfg_fom_args(description="Config options."):
     """Load config from command line args and set any specified options."""
     current_time = datetime.now().strftime("%y%m%d_%H%M%S")
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("--cfg", dest="cfg_file", type=str, required=True,
-                        help="Config file location")
-    parser.add_argument("opts", default=None, nargs=argparse.REMAINDER,
-                        help="See conf.py for all options")
+    parser.add_argument(
+        "--cfg", dest="cfg_file", type=str, required=True, help="Config file location"
+    )
+    parser.add_argument(
+        "opts",
+        default=None,
+        nargs=argparse.REMAINDER,
+        help="See conf.py for all options",
+    )
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
@@ -182,7 +200,7 @@ def load_cfg_fom_args(description="Config options."):
     cfg.merge_from_list(args.opts)
 
     log_dest = os.path.basename(args.cfg_file)
-    log_dest = log_dest.replace('.yaml', '_{}.txt'.format(current_time))
+    log_dest = log_dest.replace(".yaml", "_{}.txt".format(current_time))
 
     g_pathmgr.mkdirs(cfg.SAVE_DIR)
     cfg.LOG_TIME, cfg.LOG_DEST = current_time, log_dest
@@ -194,8 +212,9 @@ def load_cfg_fom_args(description="Config options."):
         datefmt="%y/%m/%d %H:%M:%S",
         handlers=[
             logging.FileHandler(os.path.join(cfg.SAVE_DIR, cfg.LOG_DEST)),
-            logging.StreamHandler()
-        ])
+            logging.StreamHandler(),
+        ],
+    )
 
     np.random.seed(cfg.RNG_SEED)
     torch.manual_seed(cfg.RNG_SEED)
@@ -203,8 +222,6 @@ def load_cfg_fom_args(description="Config options."):
     torch.backends.cudnn.benchmark = cfg.CUDNN.BENCHMARK
 
     logger = logging.getLogger(__name__)
-    version = [torch.__version__, torch.version.cuda,
-               torch.backends.cudnn.version()]
-    logger.info(
-        "PyTorch Version: torch={}, cuda={}, cudnn={}".format(*version))
+    version = [torch.__version__, torch.version.cuda, torch.backends.cudnn.version()]
+    logger.info("PyTorch Version: torch={}, cuda={}, cudnn={}".format(*version))
     logger.info(cfg)

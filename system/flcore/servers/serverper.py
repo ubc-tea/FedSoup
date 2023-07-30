@@ -17,13 +17,12 @@ class FedPer(Server):
 
         # self.load_model()
 
-
     def train(self):
-        for i in range(self.global_rounds+1):
+        for i in range(self.global_rounds + 1):
             self.selected_clients = self.select_clients()
             self.send_models()
 
-            if i%self.eval_gap == 0:
+            if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
                 print("\nEvaluate global model")
                 self.evaluate()
@@ -50,19 +49,23 @@ class FedPer(Server):
         self.save_results()
         self.save_global_model()
 
-
     def receive_models(self):
-        assert (len(self.selected_clients) > 0)
+        assert len(self.selected_clients) > 0
 
         active_clients = random.sample(
-            self.selected_clients, int((1-self.client_drop_rate) * self.join_clients))
+            self.selected_clients, int((1 - self.client_drop_rate) * self.join_clients)
+        )
 
         self.uploaded_weights = []
         self.uploaded_models = []
         tot_samples = 0
         for client in active_clients:
-            client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
-                    client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+            client_time_cost = (
+                client.train_time_cost["total_cost"]
+                / client.train_time_cost["num_rounds"]
+                + client.send_time_cost["total_cost"]
+                / client.send_time_cost["num_rounds"]
+            )
             if client_time_cost <= self.time_threthold:
                 tot_samples += client.train_samples
                 self.uploaded_weights.append(client.train_samples)

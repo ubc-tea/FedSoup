@@ -11,7 +11,7 @@ from utils.data_utils import read_client_data
 class clientFomo(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
-        
+
         self.num_clients = args.num_clients
         self.old_model = copy.deepcopy(self.model)
         self.received_ids = []
@@ -20,13 +20,14 @@ class clientFomo(Client):
 
         self.loss = nn.CrossEntropyLoss()
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=self.learning_rate
+        )
 
         self.val_ratio = 0.2
-        self.train_samples = self.train_samples * (1-self.val_ratio)
+        self.train_samples = self.train_samples * (1 - self.val_ratio)
 
         self.hold_out_id = args.hold_out_id
-
 
     def train(self):
         trainloader, val_loader = self.load_train_data()
@@ -40,7 +41,7 @@ class clientFomo(Client):
 
         # self.model.to(self.device)
         self.model.train()
-        
+
         max_local_steps = self.local_steps
         if self.train_slow:
             max_local_steps = np.random.randint(1, max_local_steps // 2)
@@ -62,20 +63,23 @@ class clientFomo(Client):
 
         # self.model.cpu()
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def load_train_data(self, batch_size=None):
         if batch_size == None:
             batch_size = self.batch_size
         train_data = read_client_data(self.dataset, self.id, is_train=True)
-        val_idx = -int(self.val_ratio*len(train_data))
+        val_idx = -int(self.val_ratio * len(train_data))
         val_data = train_data[val_idx:]
         train_data = train_data[:val_idx]
 
-        trainloader = DataLoader(train_data, self.batch_size, drop_last=True, shuffle=True)
-        val_loader = DataLoader(val_data, self.batch_size, drop_last=self.has_BatchNorm, shuffle=True)
+        trainloader = DataLoader(
+            train_data, self.batch_size, drop_last=True, shuffle=True
+        )
+        val_loader = DataLoader(
+            val_data, self.batch_size, drop_last=self.has_BatchNorm, shuffle=True
+        )
 
         return trainloader, val_loader
 
@@ -101,7 +105,7 @@ class clientFomo(Client):
         # self.save_model(self.model, 'model')
 
         return loss, train_num
-    
+
     def receive_models(self, ids, models):
         self.received_ids = ids
         self.received_models = models
@@ -111,17 +115,22 @@ class clientFomo(Client):
         L = self.recalculate_loss(self.old_model, val_loader)
         for received_model in self.received_models:
             params_dif = []
-            for param_n, param_i in zip(received_model.parameters(), self.old_model.parameters()):
+            for param_n, param_i in zip(
+                received_model.parameters(), self.old_model.parameters()
+            ):
                 params_dif.append((param_n - param_i).view(-1))
             params_dif = torch.cat(params_dif)
 
-            weight_list.append((L - self.recalculate_loss(received_model, val_loader)) / (torch.norm(params_dif) + 1e-5))
+            weight_list.append(
+                (L - self.recalculate_loss(received_model, val_loader))
+                / (torch.norm(params_dif) + 1e-5)
+            )
 
         # import torch.autograd.profiler as profiler
         # with profiler.profile(profile_memory=True, record_shapes=True) as prof:
         #     self.weight_vector_update(weight_list)
         # print(prof.key_averages().table(sort_by="cuda_memory_usage", row_limit=10))
-        
+
         # from pytorch_memlab import LineProfiler
         # with LineProfiler(self.weight_vector_update(weight_list)) as prof:
         #     self.weight_vector_update(weight_list)
@@ -130,14 +139,14 @@ class clientFomo(Client):
         self.weight_vector_update(weight_list)
 
         return torch.tensor(weight_list)
-        
+
     # from pytorch_memlab import profile
     # @profile
     def weight_vector_update(self, weight_list):
         # self.weight_vector = torch.zeros(self.num_clients, device=self.device)
         # for w, id in zip(weight_list, self.received_ids):
         #     self.weight_vector[id] += w.clone()
-    
+
         self.weight_vector = np.zeros(self.num_clients)
         for w, id in zip(weight_list, self.received_ids):
             if id > self.hold_out_id:
@@ -157,13 +166,15 @@ class clientFomo(Client):
             output = new_model(x)
             loss = self.loss(output, y)
             L += loss.item()
-        
+
         return L / len(val_loader)
 
     def add_parameters(self, w, received_model):
-        for param, received_param in zip(self.model.parameters(), received_model.parameters()):
+        for param, received_param in zip(
+            self.model.parameters(), received_model.parameters()
+        ):
             param.data += received_param.data.clone() * w
-        
+
     def aggregate_parameters(self, val_loader):
         weights = self.weight_scale(self.weight_cal(val_loader))
 
@@ -178,7 +189,7 @@ class clientFomo(Client):
         weights = torch.maximum(weights, torch.tensor(0))
         w_sum = torch.sum(weights)
         if w_sum > 0:
-            weights = [w/w_sum for w in weights]
+            weights = [w / w_sum for w in weights]
             return torch.tensor(weights)
         else:
             return torch.tensor([])

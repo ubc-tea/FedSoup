@@ -8,14 +8,16 @@ from flcore.clients.clientbase import Client
 class clientBN(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
-        
+
         self.loss = nn.CrossEntropyLoss()
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=self.learning_rate
+        )
 
     def train(self):
         trainloader = self.load_train_data()
-        
+
         start_time = time.time()
 
         # self.model.to(self.device)
@@ -42,11 +44,12 @@ class clientBN(Client):
 
         # self.model.cpu()
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def set_parameters(self, model):
-        for (nn, np), (on, op) in zip(model.named_parameters(), self.model.named_parameters()):
-            if 'bn' not in nn:
+        for (nn, np), (on, op) in zip(
+            model.named_parameters(), self.model.named_parameters()
+        ):
+            if "bn" not in nn:
                 op.data = np.data.clone()

@@ -18,7 +18,7 @@ class clientPerAvg(Client):
         self.optimizer = PerAvgOptimizer(self.model.parameters(), lr=self.learning_rate)
 
     def train(self):
-        trainloader = self.load_train_data(self.batch_size*2)
+        trainloader = self.load_train_data(self.batch_size * 2)
         start_time = time.time()
 
         # self.model.to(self.device)
@@ -35,11 +35,11 @@ class clientPerAvg(Client):
                 # step 1
                 if type(X) == type([]):
                     x = [None, None]
-                    x[0] = X[0][:self.batch_size].to(self.device)
-                    x[1] = X[1][:self.batch_size]
+                    x[0] = X[0][: self.batch_size].to(self.device)
+                    x[1] = X[1][: self.batch_size]
                 else:
-                    x = X[:self.batch_size].to(self.device)
-                y = Y[:self.batch_size].to(self.device)
+                    x = X[: self.batch_size].to(self.device)
+                y = Y[: self.batch_size].to(self.device)
                 if self.train_slow:
                     time.sleep(0.1 * np.abs(np.random.rand()))
                 self.optimizer.zero_grad()
@@ -51,11 +51,11 @@ class clientPerAvg(Client):
                 # step 2
                 if type(X) == type([]):
                     x = [None, None]
-                    x[0] = X[0][self.batch_size:].to(self.device)
-                    x[1] = X[1][self.batch_size:]
+                    x[0] = X[0][self.batch_size :].to(self.device)
+                    x[1] = X[1][self.batch_size :]
                 else:
-                    x = X[self.batch_size:].to(self.device)
-                y = Y[self.batch_size:].to(self.device)
+                    x = X[self.batch_size :].to(self.device)
+                y = Y[self.batch_size :].to(self.device)
                 if self.train_slow:
                     time.sleep(0.1 * np.abs(np.random.rand()))
                 self.optimizer.zero_grad()
@@ -71,9 +71,8 @@ class clientPerAvg(Client):
 
         # self.model.cpu()
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def train_one_step(self):
         testloader = self.load_test_data(self.batch_size)

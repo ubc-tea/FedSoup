@@ -13,15 +13,14 @@ class Local(Server):
 
         print(f"\nJoin ratio / total clients: {self.join_ratio} / {self.num_clients}")
         print("Finished creating server and clients.")
-        
+
         # self.load_model()
 
-
     def train(self):
-        for i in range(self.global_rounds+1):
+        for i in range(self.global_rounds + 1):
             self.selected_clients = self.select_clients()
 
-            if i%self.eval_gap == 0:
+            if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
                 print("\nEvaluate global model")
                 self.evaluate()
@@ -34,7 +33,6 @@ class Local(Server):
             #            for client in self.selected_clients]
             # [t.start() for t in threads]
             # [t.join() for t in threads]
-
 
         print("\nBest global accuracy.")
         # self.print_(max(self.rs_test_acc), max(

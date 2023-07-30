@@ -61,7 +61,6 @@ class Server(object):
         else:
             self.num_clients = args.num_clients + 1
 
-
     def set_clients(self, args, clientObj):
         for i, train_slow, send_slow in zip(
             range(self.num_clients), self.train_slow_clients, self.send_slow_clients
@@ -479,7 +478,7 @@ class Server(object):
     # def print_(self, test_acc, test_auc, train_loss):
     #     print("Average Test Accurancy: {:.4f}".format(test_acc))
     #     print("Average Test AUC: {:.4f}".format(test_auc))
-        # print("Average Train Loss: {:.4f}".format(train_loss))
+    # print("Average Train Loss: {:.4f}".format(train_loss))
 
     def check_done(self, acc_lss, top_cnt=None, div_value=None):
         for acc_ls in acc_lss:

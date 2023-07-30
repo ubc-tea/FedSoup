@@ -23,16 +23,15 @@ class FedProto(Server):
         self.num_classes = args.num_classes
         self.global_protos = [None for _ in range(args.num_classes)]
 
-
     def train(self):
         self.done = False
         i = 0
         while not self.done:
-        # for i in range(self.global_rounds+1):
+            # for i in range(self.global_rounds+1):
             s_t = time.time()
             self.selected_clients = self.select_clients()
 
-            if i%self.eval_gap == 0 and i>0:
+            if i % self.eval_gap == 0 and i > 0:
                 print(f"\n-------------Round number: {i}-------------")
                 print("\nEvaluate global model")
                 self.evaluate()
@@ -50,17 +49,19 @@ class FedProto(Server):
             self.send_protos()
 
             self.Budget.append(time.time() - s_t)
-            print('-'*50, self.Budget[-1])
+            print("-" * 50, self.Budget[-1])
 
-            if i>0:
-                self.done = self.check_done(acc_lss=[self.rs_test_acc], top_cnt=self.top_cnt)
+            if i > 0:
+                self.done = self.check_done(
+                    acc_lss=[self.rs_test_acc], top_cnt=self.top_cnt
+                )
             i += 1
 
         print("\nBest global accuracy.")
         # self.print_(max(self.rs_test_acc), max(
         #     self.rs_train_acc), min(self.rs_train_loss))
         print(max(self.rs_test_acc))
-        print(sum(self.Budget[1:])/len(self.Budget[1:]))
+        print(sum(self.Budget[1:]) / len(self.Budget[1:]))
 
         print("\nEvaluating Post-Fine-Tuning and OOD Performance...")
         self.evaluate(ood_eval=True)
@@ -68,18 +69,18 @@ class FedProto(Server):
         self.save_results()
 
     def send_protos(self):
-        assert (len(self.clients) > 0)
+        assert len(self.clients) > 0
 
         for client in self.clients:
             start_time = time.time()
 
             client.set_protos(self.global_protos)
 
-            client.send_time_cost['num_rounds'] += 1
-            client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+            client.send_time_cost["num_rounds"] += 1
+            client.send_time_cost["total_cost"] += 2 * (time.time() - start_time)
 
     def receive_protos(self):
-        assert (len(self.selected_clients) > 0)
+        assert len(self.selected_clients) > 0
 
         self.uploaded_ids = []
         self.uploaded_protos = []
@@ -91,15 +92,15 @@ class FedProto(Server):
         stats = self.test_metrics()
         stats_train = self.train_metrics()
 
-        test_acc = sum(stats[2])*1.0 / sum(stats[1])
-        train_loss = sum(stats_train[2])*1.0 / sum(stats_train[1])
+        test_acc = sum(stats[2]) * 1.0 / sum(stats[1])
+        train_loss = sum(stats_train[2]) * 1.0 / sum(stats_train[1])
         accs = [a / n for a, n in zip(stats[2], stats[1])]
-        
+
         if acc == None:
             self.rs_test_acc.append(test_acc)
         else:
             acc.append(test_acc)
-        
+
         if loss == None:
             self.rs_train_loss.append(train_loss)
         else:
@@ -109,7 +110,7 @@ class FedProto(Server):
         print("Averaged Test Accurancy: {:.4f}".format(test_acc))
         # self.print_(test_acc, train_acc, train_loss)
         print("Std Test Accurancy: {:.4f}".format(np.std(accs)))
-            
+
 
 # https://github.com/yuetan031/fedproto/blob/main/lib/utils.py#L221
 def proto_aggregation(local_protos_list):

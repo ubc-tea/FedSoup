@@ -14,10 +14,13 @@ num_clients = 20
 num_classes = 200
 dir_path = "Tiny-imagenet/"
 
+
 # http://cs231n.stanford.edu/tiny-imagenet-200.zip
 # https://github.com/QinbinLi/MOON/blob/6c7a4ed1b1a8c0724fa2976292a667a828e3ff5d/datasets.py#L148
 class ImageFolder_custom(DatasetFolder):
-    def __init__(self, root, dataidxs=None, train=True, transform=None, target_transform=None):
+    def __init__(
+        self, root, dataidxs=None, train=True, transform=None, target_transform=None
+    ):
         self.root = root
         self.dataidxs = dataidxs
         self.train = train
@@ -54,25 +57,41 @@ class ImageFolder_custom(DatasetFolder):
 def generate_dataset(dir_path, num_clients, num_classes, niid, balance, partition):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-        
+
     # Setup directory for train/test data
     config_path = dir_path + "config.json"
     train_path = dir_path + "train/"
     test_path = dir_path + "test/"
 
-    if check(config_path, train_path, test_path, num_clients, num_classes, niid, balance, partition):
+    if check(
+        config_path,
+        train_path,
+        test_path,
+        num_clients,
+        num_classes,
+        niid,
+        balance,
+        partition,
+    ):
         return
 
     # Get data
     transform = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+    )
 
-    trainset = ImageFolder_custom(root=dir_path+'rawdata/tiny-imagenet-200/train/', transform=transform)
-    testset = ImageFolder_custom(root=dir_path+'rawdata/tiny-imagenet-200/val/', transform=transform)
+    trainset = ImageFolder_custom(
+        root=dir_path + "rawdata/tiny-imagenet-200/train/", transform=transform
+    )
+    testset = ImageFolder_custom(
+        root=dir_path + "rawdata/tiny-imagenet-200/val/", transform=transform
+    )
     trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=len(trainset), shuffle=False)
+        trainset, batch_size=len(trainset), shuffle=False
+    )
     testloader = torch.utils.data.DataLoader(
-        testset, batch_size=len(testset), shuffle=False)
+        testset, batch_size=len(testset), shuffle=False
+    )
 
     for _, train_data in enumerate(trainloader, 0):
         trainset.data, trainset.targets = train_data
@@ -94,11 +113,28 @@ def generate_dataset(dir_path, num_clients, num_classes, niid, balance, partitio
     #     idx = dataset_label == i
     #     dataset.append(dataset_image[idx])
 
-    X, y, statistic = separate_data((dataset_image, dataset_label), num_clients, num_classes, 
-                                    niid, balance, partition)
+    X, y, statistic = separate_data(
+        (dataset_image, dataset_label),
+        num_clients,
+        num_classes,
+        niid,
+        balance,
+        partition,
+    )
     train_data, test_data = split_data(X, y)
-    save_file(config_path, train_path, test_path, train_data, test_data, num_clients, num_classes, 
-        statistic, niid, balance, partition)
+    save_file(
+        config_path,
+        train_path,
+        test_path,
+        train_data,
+        test_data,
+        num_clients,
+        num_classes,
+        statistic,
+        niid,
+        balance,
+        partition,
+    )
 
 
 if __name__ == "__main__":

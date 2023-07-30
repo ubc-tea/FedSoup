@@ -12,11 +12,13 @@ from sklearn import metrics
 class clientROD(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
-        
+
         self.loss = nn.CrossEntropyLoss()
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
-        
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=self.learning_rate
+        )
+
         self.pred = copy.deepcopy(self.model.head)
         # self.opt_pred = torch.optim.SGD(self.pred.parameters(), lr=self.learning_rate)
         self.opt_pred = torch.optim.Adam(self.pred.parameters(), lr=self.learning_rate)
@@ -27,10 +29,9 @@ class clientROD(Client):
             for yy in y:
                 self.sample_per_class[yy.item()] += 1
 
-
     def train(self):
         trainloader = self.load_train_data()
-        
+
         start_time = time.time()
 
         # self.model.to(self.device)
@@ -62,8 +63,8 @@ class clientROD(Client):
 
         # self.model.cpu()
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def test_metrics(self, model=None):
         testloader = self.load_test_data()
@@ -75,7 +76,7 @@ class clientROD(Client):
         test_num = 0
         y_prob = []
         y_true = []
-        
+
         with torch.no_grad():
             for x, y in testloader:
                 if type(x) == type([]):
@@ -103,8 +104,8 @@ class clientROD(Client):
         y_prob = np.concatenate(y_prob, axis=0)
         y_true = np.concatenate(y_true, axis=0)
 
-        auc = metrics.roc_auc_score(y_true, y_prob, average='micro')
-        
+        auc = metrics.roc_auc_score(y_true, y_prob, average="micro")
+
         return test_acc, test_num, auc
 
 

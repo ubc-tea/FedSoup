@@ -21,13 +21,16 @@ class clientDitto(Client):
 
         self.loss = nn.CrossEntropyLoss()
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=self.learning_rate
+        )
         self.poptimizer = PerturbedGradientDescent(
-            self.pmodel.parameters(), lr=self.learning_rate, mu=self.mu)
+            self.pmodel.parameters(), lr=self.learning_rate, mu=self.mu
+        )
 
     def train(self):
         trainloader = self.load_train_data()
-        
+
         start_time = time.time()
 
         # self.model.to(self.device)
@@ -54,10 +57,9 @@ class clientDitto(Client):
 
         # self.model.cpu()
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
-        
     def ptrain(self):
         trainloader = self.load_train_data()
 
@@ -87,7 +89,7 @@ class clientDitto(Client):
 
         # self.model.cpu()
 
-        self.train_time_cost['total_cost'] += time.time() - start_time
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def test_metrics(self):
         testloaderfull = self.load_test_data()
@@ -99,7 +101,7 @@ class clientDitto(Client):
         test_num = 0
         y_prob = []
         y_true = []
-        
+
         with torch.no_grad():
             for x, y in testloaderfull:
                 if type(x) == type([]):
@@ -113,13 +115,17 @@ class clientDitto(Client):
                 test_num += y.shape[0]
 
                 y_prob.append(F.softmax(output).detach().cpu().numpy())
-                y_true.append(label_binarize(y.detach().cpu().numpy(), classes=np.arange(self.num_classes)))
+                y_true.append(
+                    label_binarize(
+                        y.detach().cpu().numpy(), classes=np.arange(self.num_classes)
+                    )
+                )
 
         # self.model.cpu()
 
         y_prob = np.concatenate(y_prob, axis=0)
         y_true = np.concatenate(y_true, axis=0)
 
-        auc = metrics.roc_auc_score(y_true, y_prob, average='micro')
-        
+        auc = metrics.roc_auc_score(y_true, y_prob, average="micro")
+
         return test_acc, test_num, auc

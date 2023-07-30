@@ -9,10 +9,12 @@ from flcore.clients.clientbase import Client
 class clientDyn(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
-        
+
         self.loss = nn.CrossEntropyLoss()
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=self.learning_rate
+        )
 
         self.alpha = args.alpha
 
@@ -20,7 +22,6 @@ class clientDyn(Client):
         old_grad = copy.deepcopy(self.model)
         old_grad = model_parameter_vector(old_grad)
         self.old_grad = torch.zeros_like(old_grad)
-        
 
     def train(self):
         trainloader = self.load_train_data()
@@ -48,7 +49,9 @@ class clientDyn(Client):
 
                 if self.global_model_vector != None:
                     v1 = model_parameter_vector(self.model)
-                    loss += self.alpha/2 * torch.norm(v1 - self.global_model_vector, 2)
+                    loss += (
+                        self.alpha / 2 * torch.norm(v1 - self.global_model_vector, 2)
+                    )
                     loss -= torch.dot(v1, self.old_grad)
 
                 loss.backward()
@@ -60,9 +63,8 @@ class clientDyn(Client):
 
         # self.model.cpu()
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def set_parameters(self, model):
         for new_param, old_param in zip(model.parameters(), self.model.parameters()):

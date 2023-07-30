@@ -20,17 +20,26 @@ dir_path = "agnews/"
 def generate_agnews(dir_path, num_clients, num_classes, niid, balance, partition):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-        
+
     # Setup directory for train/test data
     config_path = dir_path + "config.json"
     train_path = dir_path + "train/"
     test_path = dir_path + "test/"
 
-    if check(config_path, train_path, test_path, num_clients, num_classes, niid, balance, partition):
+    if check(
+        config_path,
+        train_path,
+        test_path,
+        num_clients,
+        num_classes,
+        niid,
+        balance,
+        partition,
+    ):
         return
 
     # Get AG_News data
-    trainset, testset = torchtext.datasets.AG_NEWS(root=dir_path+"rawdata")
+    trainset, testset = torchtext.datasets.AG_NEWS(root=dir_path + "rawdata")
 
     trainlabel, traintext = list(zip(*trainset))
     testlabel, testtext = list(zip(*testset))
@@ -43,8 +52,10 @@ def generate_agnews(dir_path, num_clients, num_classes, niid, balance, partition
     dataset_label.extend(trainlabel)
     dataset_label.extend(testlabel)
 
-    tokenizer = get_tokenizer('basic_english')
-    vocab = build_vocab_from_iterator(map(tokenizer, iter(dataset_text)), specials=["<unk>"])
+    tokenizer = get_tokenizer("basic_english")
+    vocab = build_vocab_from_iterator(
+        map(tokenizer, iter(dataset_text)), specials=["<unk>"]
+    )
     vocab.set_default_index(vocab["<unk>"])
 
     text_pipeline = lambda x: vocab(tokenizer(x))
@@ -55,7 +66,7 @@ def generate_agnews(dir_path, num_clients, num_classes, niid, balance, partition
         for _text, _label in zip(text, label):
             label_list.append(label_pipeline(_label))
             text_ = text_pipeline(_text)
-            padding = [0 for i in range(max_len-len(text_))]
+            padding = [0 for i in range(max_len - len(text_))]
             text_.extend(padding)
             text_list.append(text_[:max_len])
         return label_list, text_list
@@ -76,10 +87,23 @@ def generate_agnews(dir_path, num_clients, num_classes, niid, balance, partition
     #     idx = label_list == i
     #     dataset.append(text_list[idx])
 
-    X, y, statistic = separate_data((text_list, label_list), num_clients, num_classes, niid, balance, partition)
+    X, y, statistic = separate_data(
+        (text_list, label_list), num_clients, num_classes, niid, balance, partition
+    )
     train_data, test_data = split_data(X, y)
-    save_file(config_path, train_path, test_path, train_data, test_data, num_clients, num_classes, 
-            statistic, niid, balance, partition)
+    save_file(
+        config_path,
+        train_path,
+        test_path,
+        train_data,
+        test_data,
+        num_clients,
+        num_classes,
+        statistic,
+        niid,
+        balance,
+        partition,
+    )
 
     print("The size of vocabulary:", len(vocab))
 

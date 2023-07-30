@@ -10,6 +10,7 @@ class Tent(nn.Module):
 
     Once tented, a model adapts itself by updating on every forward.
     """
+
     def __init__(self, model, optimizer, steps=1, episodic=False):
         super().__init__()
         self.model = model
@@ -20,8 +21,9 @@ class Tent(nn.Module):
 
         # note: if the model is never reset, like for continual adaptation,
         # then skipping the state copy would save memory
-        self.model_state, self.optimizer_state = \
-            copy_model_and_optimizer(self.model, self.optimizer)
+        self.model_state, self.optimizer_state = copy_model_and_optimizer(
+            self.model, self.optimizer
+        )
 
     def forward(self, x):
         if self.episodic:
@@ -35,8 +37,9 @@ class Tent(nn.Module):
     def reset(self):
         if self.model_state is None or self.optimizer_state is None:
             raise Exception("cannot reset without saved model/optimizer state")
-        load_model_and_optimizer(self.model, self.optimizer,
-                                 self.model_state, self.optimizer_state)
+        load_model_and_optimizer(
+            self.model, self.optimizer, self.model_state, self.optimizer_state
+        )
 
 
 @torch.jit.script
@@ -74,7 +77,7 @@ def collect_params(model):
     for nm, m in model.named_modules():
         if isinstance(m, nn.BatchNorm2d):
             for np, p in m.named_parameters():
-                if np in ['weight', 'bias']:  # weight is scale, bias is shift
+                if np in ["weight", "bias"]:  # weight is scale, bias is shift
                     params.append(p)
                     names.append(f"{nm}.{np}")
     return params, names
@@ -117,9 +120,9 @@ def check_model(model):
     param_grads = [p.requires_grad for p in model.parameters()]
     has_any_params = any(param_grads)
     has_all_params = all(param_grads)
-    assert has_any_params, "tent needs params to update: " \
-                           "check which require grad"
-    assert not has_all_params, "tent should not update all params: " \
-                               "check which require grad"
+    assert has_any_params, "tent needs params to update: " "check which require grad"
+    assert not has_all_params, (
+        "tent should not update all params: " "check which require grad"
+    )
     has_bn = any([isinstance(m, nn.BatchNorm2d) for m in model.modules()])
     assert has_bn, "tent needs normalization for its optimization"

@@ -10,10 +10,12 @@ from flcore.clients.clientbase import Client
 class clientProto(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
-        
+
         self.loss = nn.CrossEntropyLoss()
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=self.learning_rate
+        )
 
         self.feature_dim = list(self.model.head.parameters())[0].shape[1]
 
@@ -22,7 +24,6 @@ class clientProto(Client):
         self.loss_mse = nn.MSELoss()
 
         self.lamda = args.lamda
-
 
     def train(self):
         trainloader = self.load_train_data()
@@ -71,9 +72,8 @@ class clientProto(Client):
         # self.collect_protos()
         self.protos = agg_func(protos)
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def set_protos(self, global_protos):
         self.global_protos = copy.deepcopy(global_protos)
@@ -109,7 +109,7 @@ class clientProto(Client):
 
         test_acc = 0
         test_num = 0
-        
+
         if self.global_protos is not None:
             with torch.no_grad():
                 for x, y in testloader:
@@ -120,7 +120,9 @@ class clientProto(Client):
                     y = y.to(self.device)
                     rep = self.model.base(x)
 
-                    output = float('inf') * torch.ones(y.shape[0], self.num_classes).to(self.device)
+                    output = float("inf") * torch.ones(y.shape[0], self.num_classes).to(
+                        self.device
+                    )
                     for i, r in enumerate(rep):
                         for j, pro in self.global_protos.items():
                             output[i, j] = self.loss_mse(r, pro)

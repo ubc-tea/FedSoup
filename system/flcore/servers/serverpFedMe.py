@@ -23,7 +23,7 @@ class pFedMe(Server):
         print("Finished creating server and clients.")
 
     def train(self):
-        for i in range(self.global_rounds+1):
+        for i in range(self.global_rounds + 1):
             self.selected_clients = self.select_clients()
             self.send_models()
 
@@ -40,12 +40,14 @@ class pFedMe(Server):
             # [t.start() for t in threads]
             # [t.join() for t in threads]
 
-            if i%self.eval_gap == 0:
+            if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
                 print("\nEvaluate personalized model")
                 self.evaluate_personalized_model()
 
-            self.previous_global_model = copy.deepcopy(list(self.global_model.parameters()))
+            self.previous_global_model = copy.deepcopy(
+                list(self.global_model.parameters())
+            )
             self.receive_models()
             self.aggregate_parameters()
             self.beta_aggregate_parameters()
@@ -66,18 +68,19 @@ class pFedMe(Server):
         self.save_results()
         self.save_global_model()
 
-
     def beta_aggregate_parameters(self):
         # aggregate avergage model with previous model using parameter beta
-        for pre_param, param in zip(self.previous_global_model, self.global_model.parameters()):
-            param.data = (1 - self.beta)*pre_param.data + self.beta*param.data
+        for pre_param, param in zip(
+            self.previous_global_model, self.global_model.parameters()
+        ):
+            param.data = (1 - self.beta) * pre_param.data + self.beta * param.data
 
     def test_metrics_personalized(self):
         num_samples = []
         tot_correct = []
         for c in self.clients:
             ct, ns = c.test_metrics_personalized()
-            tot_correct.append(ct*1.0)
+            tot_correct.append(ct * 1.0)
             num_samples.append(ns)
         ids = [c.id for c in self.clients]
 
@@ -89,9 +92,9 @@ class pFedMe(Server):
         losses = []
         for c in self.clients:
             ct, cl, ns = c.train_metrics_personalized()
-            tot_correct.append(ct*1.0)
+            tot_correct.append(ct * 1.0)
             num_samples.append(ns)
-            losses.append(cl*1.0)
+            losses.append(cl * 1.0)
 
         ids = [c.id for c in self.clients]
 
@@ -101,10 +104,10 @@ class pFedMe(Server):
         stats = self.test_metrics_personalized()
         # stats_train = self.train_metrics_personalized()
 
-        test_acc = sum(stats[2])*1.0 / sum(stats[1])
+        test_acc = sum(stats[2]) * 1.0 / sum(stats[1])
         # train_acc = sum(stats_train[2])*1.0 / sum(stats_train[1])
         # train_loss = sum(stats_train[3])*1.0 / sum(stats_train[1])
-        
+
         self.rs_test_acc_per.append(test_acc)
         # self.rs_train_acc_per.append(train_acc)
         # self.rs_train_loss_per.append(train_loss)
@@ -125,9 +128,9 @@ class pFedMe(Server):
         #         hf.create_dataset('rs_train_acc', data=self.rs_train_acc)
         #         hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
 
-        if (len(self.rs_test_acc_per)):
+        if len(self.rs_test_acc_per):
             algo2 = algo + "_" + self.goal + "_" + str(self.times)
-            with h5py.File(result_path + "{}.h5".format(algo2), 'w') as hf:
-                hf.create_dataset('rs_test_acc', data=self.rs_test_acc_per)
-                hf.create_dataset('rs_train_acc', data=self.rs_train_acc_per)
-                hf.create_dataset('rs_train_loss', data=self.rs_train_loss_per)
+            with h5py.File(result_path + "{}.h5".format(algo2), "w") as hf:
+                hf.create_dataset("rs_test_acc", data=self.rs_test_acc_per)
+                hf.create_dataset("rs_train_acc", data=self.rs_train_acc_per)
+                hf.create_dataset("rs_train_loss", data=self.rs_train_loss_per)

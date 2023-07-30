@@ -2,16 +2,15 @@ import torch
 import torch.nn as nn
 from torch.hub import load_state_dict_from_url
 
-__all__ = ['AlexNet', 'alexnet']
+__all__ = ["AlexNet", "alexnet"]
 
 
 model_urls = {
-    'alexnet': 'https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth',
+    "alexnet": "https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",
 }
 
 
 class AlexNet(nn.Module):
-
     def __init__(self, num_classes=1000):
         super(AlexNet, self).__init__()
         self.features = nn.Sequential(
@@ -59,15 +58,14 @@ def alexnet(pretrained=False, progress=True, **kwargs):
     """
     model = AlexNet(**kwargs)
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls['alexnet'],
-                                              progress=progress)
+        state_dict = load_state_dict_from_url(model_urls["alexnet"], progress=progress)
 
         new_dict = {}
         for k, v in state_dict.items():
-            if 'classifier.6' not in k:
+            if "classifier.6" not in k:
                 new_dict[k] = v
             else:
-                new_dict[k.replace('classifier.6', 'fc')] = v
+                new_dict[k.replace("classifier.6", "fc")] = v
 
         model.load_state_dict(new_dict)
     return model

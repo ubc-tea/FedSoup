@@ -392,27 +392,30 @@ class Client(object):
         norm = torch.sum(all_scores)
         for name, _ in self.model.named_parameters():
             self.scores[name].div_(norm)
-        
+
         if layerwise:
             for name, param in self.model.named_parameters():
                 score = self.scores[name]
                 k = int(sparsity_ratio * score.numel())
                 if not k < 1:
                     threshold, _ = torch.kthvalue(torch.flatten(score), k)
-                    zero = torch.tensor([0.]).to(self.device)
-                    one = torch.tensor([1.]).to(self.device)
-                    self.mask_state_dict[name].copy_(torch.where(score <= threshold, zero, one))
+                    zero = torch.tensor([0.0]).to(self.device)
+                    one = torch.tensor([1.0]).to(self.device)
+                    self.mask_state_dict[name].copy_(
+                        torch.where(score <= threshold, zero, one)
+                    )
         else:
             global_scores = torch.cat([torch.flatten(v) for v in self.scores.values()])
             k = int(sparsity_ratio * global_scores.numel())
             if not k < 1:
                 threshold, _ = torch.kthvalue(global_scores, k)
                 for name, param in self.model.named_parameters():
-                    score = self.scores[name] 
-                    zero = torch.tensor([0.]).to(self.device)
-                    one = torch.tensor([1.]).to(self.device)
-                    self.mask_state_dict[name].copy_(torch.where(score <= threshold, zero, one))
-
+                    score = self.scores[name]
+                    zero = torch.tensor([0.0]).to(self.device)
+                    one = torch.tensor([1.0]).to(self.device)
+                    self.mask_state_dict[name].copy_(
+                        torch.where(score <= threshold, zero, one)
+                    )
 
     def apply_mask(self):
         for p, m in zip(self.model.parameters(), self.mask_state_dict):

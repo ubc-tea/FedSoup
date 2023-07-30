@@ -21,7 +21,10 @@ class clientpFedMe(Client):
 
         self.loss = nn.CrossEntropyLoss()
         self.optimizer = pFedMeOptimizer(
-            self.model.parameters(), lr=self.personalized_learning_rate, lamda=self.lamda)
+            self.model.parameters(),
+            lr=self.personalized_learning_rate,
+            lamda=self.lamda,
+        )
 
     def train(self):
         trainloader = self.load_train_data()
@@ -51,23 +54,33 @@ class clientpFedMe(Client):
                     loss = self.loss(output, y)
                     loss.backward()
                     # finding aproximate theta
-                    self.personalized_params = self.optimizer.step(self.local_params, self.device)
+                    self.personalized_params = self.optimizer.step(
+                        self.local_params, self.device
+                    )
 
                 # update local weight after finding aproximate theta
-                for new_param, localweight in zip(self.personalized_params, self.local_params):
+                for new_param, localweight in zip(
+                    self.personalized_params, self.local_params
+                ):
                     localweight = localweight.to(self.device)
-                    localweight.data = localweight.data - self.lamda * self.learning_rate * (localweight.data - new_param.data)
+                    localweight.data = (
+                        localweight.data
+                        - self.lamda
+                        * self.learning_rate
+                        * (localweight.data - new_param.data)
+                    )
 
         # self.model.cpu()
 
         self.update_parameters(self.model, self.local_params)
 
-        self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
-
+        self.train_time_cost["num_rounds"] += 1
+        self.train_time_cost["total_cost"] += time.time() - start_time
 
     def set_parameters(self, model):
-        for new_param, old_param, local_param in zip(model.parameters(), self.model.parameters(), self.local_params):
+        for new_param, old_param, local_param in zip(
+            model.parameters(), self.model.parameters(), self.local_params
+        ):
             old_param.data = new_param.data.clone()
             local_param.data = new_param.data.clone()
 
@@ -79,7 +92,7 @@ class clientpFedMe(Client):
 
         test_acc = 0
         test_num = 0
-        
+
         with torch.no_grad():
             for x, y in testloaderfull:
                 if type(x) == type([]):
@@ -92,7 +105,7 @@ class clientpFedMe(Client):
                 test_num += y.shape[0]
 
         # self.model.cpu()
-        
+
         return test_acc, test_num
 
     # def train_metrics_personalized(self):
@@ -115,5 +128,5 @@ class clientpFedMe(Client):
     #         loss += self.loss(output, y).item() * y.shape[0]
 
     #     # self.model.cpu()
-        
+
     #     return train_acc, loss, train_num

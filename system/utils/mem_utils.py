@@ -4,22 +4,25 @@ from collections import defaultdict
 from typing import Optional, Tuple, List
 
 import torch
-  
+
 from math import isnan
 from calmsize import size as calmsize
 
+
 def readable_size(num_bytes: int) -> str:
-    return '' if isnan(num_bytes) else '{:.2f}'.format(calmsize(num_bytes))
+    return "" if isnan(num_bytes) else "{:.2f}".format(calmsize(num_bytes))
+
 
 LEN = 79
 
 # some pytorch low-level memory management constant
 # the minimal allocate memory size (Byte)
-PYTORCH_MIN_ALLOCATE = 2 ** 9
+PYTORCH_MIN_ALLOCATE = 2**9
 # the minimal cache memory size (Byte)
-PYTORCH_MIN_CACHE = 2 ** 20
+PYTORCH_MIN_CACHE = 2**20
 
-class MemReporter():
+
+class MemReporter:
     """A memory reporter that collects tensors and memory usages
 
     Parameters:
@@ -27,6 +30,7 @@ class MemReporter():
         of Tensors
 
     """
+
     def __init__(self, model: Optional[torch.nn.Module] = None):
         self.tensor_name = {}
         self.device_mapping = defaultdict(list)
@@ -43,7 +47,7 @@ class MemReporter():
                 tensor_names[param].append(name)
 
         for param, name in tensor_names.items():
-            self.tensor_name[id(param)] = '+'.join(name)
+            self.tensor_name[id(param)] = "+".join(name)
 
     def _get_tensor_name(self, tensor: torch.Tensor) -> str:
         tensor_id = id(tensor)
@@ -65,7 +69,7 @@ class MemReporter():
             - the gradients(.grad) of Parameters is not collected, and
             I don't know why.
         """
-        #FIXME: make the grad tensor collected by gc
+        # FIXME: make the grad tensor collected by gc
         objects = gc.get_objects()
         tensors = [obj for obj in objects if isinstance(obj, torch.Tensor)]
         for t in tensors:
@@ -101,14 +105,16 @@ class MemReporter():
             fact_memory_size = fact_numel * element_size
             # since pytorch allocate at least 512 Bytes for any tensor, round
             # up to a multiple of 512
-            memory_size = math.ceil(fact_memory_size / PYTORCH_MIN_ALLOCATE) \
-                    * PYTORCH_MIN_ALLOCATE
+            memory_size = (
+                math.ceil(fact_memory_size / PYTORCH_MIN_ALLOCATE)
+                * PYTORCH_MIN_ALLOCATE
+            )
 
             # tensor.storage should be the actual object related to memory
             # allocation
             data_ptr = tensor.storage().data_ptr()
             if data_ptr in visited_data:
-                name = '{}(->{})'.format(
+                name = "{}(->{})".format(
                     name,
                     visited_data[data_ptr],
                 )
@@ -127,7 +133,6 @@ class MemReporter():
         for device, tensors in self.device_mapping.items():
             tensor_stats = []
             for tensor in tensors:
-
                 if tensor.numel() == 0:
                     continue
                 stat = get_tensor_stat(tensor)  # (name, shape, numel, memory_size)
@@ -135,7 +140,7 @@ class MemReporter():
                 if isinstance(tensor, torch.nn.Parameter):
                     if tensor.grad is not None:
                         # manually specify the name of gradient tensor
-                        self.tensor_name[id(tensor.grad)] = '{}.grad'.format(
+                        self.tensor_name[id(tensor.grad)] = "{}.grad".format(
                             self._get_tensor_name(tensor)
                         )
                         stat = get_tensor_stat(tensor.grad)
@@ -145,7 +150,9 @@ class MemReporter():
 
         self.device_mapping.clear()
 
-    def print_stats(self, verbose: bool = False, target_device: Optional[torch.device] = None) -> None:
+    def print_stats(
+        self, verbose: bool = False, target_device: Optional[torch.device] = None
+    ) -> None:
         # header
         # show_reuse = verbose
         # template_format = '{:<40s}{:>20s}{:>10s}'
@@ -156,7 +163,7 @@ class MemReporter():
             if target_device is not None and device != target_device:
                 continue
             # print('-' * LEN)
-            print('\nStorage on {}'.format(device))
+            print("\nStorage on {}".format(device))
             total_mem = 0
             total_numel = 0
             for stat in tensor_stats:
@@ -171,23 +178,33 @@ class MemReporter():
                 total_mem += mem
                 total_numel += numel
 
-            print('-'*LEN)
-            print('Total Tensors: {} \tUsed Memory: {}'.format(
-                total_numel, readable_size(total_mem),
-            ))
+            print("-" * LEN)
+            print(
+                "Total Tensors: {} \tUsed Memory: {}".format(
+                    total_numel,
+                    readable_size(total_mem),
+                )
+            )
 
-            if device != torch.device('cpu'):
+            if device != torch.device("cpu"):
                 with torch.cuda.device(device):
                     memory_allocated = torch.cuda.memory_allocated()
-                print('The allocated memory on {}: {}'.format(
-                    device, readable_size(memory_allocated),
-                ))
+                print(
+                    "The allocated memory on {}: {}".format(
+                        device,
+                        readable_size(memory_allocated),
+                    )
+                )
                 if memory_allocated != total_mem:
-                    print('Memory differs due to the matrix alignment or'
-                          ' invisible gradient buffer tensors')
-            print('-'*LEN)
+                    print(
+                        "Memory differs due to the matrix alignment or"
+                        " invisible gradient buffer tensors"
+                    )
+            print("-" * LEN)
 
-    def report(self, verbose: bool = False, device: Optional[torch.device] = None) -> None:
+    def report(
+        self, verbose: bool = False, device: Optional[torch.device] = None
+    ) -> None:
         """Interface for end-users to directly print the memory usage
 
         args:
