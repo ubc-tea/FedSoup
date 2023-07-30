@@ -50,6 +50,10 @@ class clientSoup(Client):
         if self.train_slow:
             max_local_steps = np.random.randint(1, max_local_steps // 2)
 
+        # TODO: pruning fixed mask
+        if self.train_round == 0 and self.pruning:
+            self.gen_mask(sparsity_ratio=self.sparsity_ratio)
+
         self.train_round += 1
         for step in range(max_local_steps):
             for i, (x, y) in enumerate(trainloader):
@@ -66,6 +70,9 @@ class clientSoup(Client):
 
                 loss.backward()
                 self.optimizer.step()
+
+                if self.pruning:
+                    self.apply_mask()
 
         # self.model.cpu()
         if self.train_round > self.wa_alpha * self.tot_round:

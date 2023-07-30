@@ -63,6 +63,9 @@ class Client(object):
 
         self.save_img = args.save_img
 
+        self.pruning = args.pruning
+        self.sparsity_ratio = args.sparsity_ratio
+
     def load_train_data(self, batch_size=None):
         if batch_size == None:
             batch_size = self.batch_size
@@ -359,3 +362,58 @@ class Client(object):
     # @staticmethod
     # def model_exists():
     #     return os.path.exists(os.path.join("models", "server" + ".pt"))
+
+    # only support SNIP currently
+    def gen_mask(self, algo="SNIP", sparsity_ratio=0.9, layerwise=False):
+        self.mask_state_dict = self.model.state_dict()
+
+        # compute gradient
+        trainloader = self.load_train_data()
+        for x, y in trainloader:
+            if type(x) == type([]):
+                x[0] = x[0].to(self.device)
+            else:
+                x = x.to(self.device)
+            y = y.to(self.device)
+            output = self.model(x)
+            loss = self.loss(output, y).item() * y.shape[0]
+            loss.backward()
+
+        # calculate score
+        self.scores = {}
+        for name, param in self.model.named_parameters():
+            if algo == "SNIP":
+                self.scores[name] = torch.clone(param.grad.data).detach().abs_()
+            else:
+                raise ValueError("Not implemented.")
+
+        # normalize score
+        all_scores = torch.cat([torch.flatten(v) for v in self.scores.values()])
+        norm = torch.sum(all_scores)
+        for name, _ in self.model.named_parameters():
+            self.scores[name].div_(norm)
+        
+        if layerwise:
+            for name, param in self.model.named_parameters():
+                score = self.scores[name]
+                k = int(sparsity_ratio * score.numel())
+                if not k < 1:
+                    threshold, _ = torch.kthvalue(torch.flatten(score), k)
+                    zero = torch.tensor([0.]).to(self.device)
+                    one = torch.tensor([1.]).to(self.device)
+                    self.mask_state_dict[name].copy_(torch.where(score <= threshold, zero, one))
+        else:
+            global_scores = torch.cat([torch.flatten(v) for v in self.scores.values()])
+            k = int(sparsity_ratio * global_scores.numel())
+            if not k < 1:
+                threshold, _ = torch.kthvalue(global_scores, k)
+                for name, param in self.model.named_parameters():
+                    score = self.scores[name] 
+                    zero = torch.tensor([0.]).to(self.device)
+                    one = torch.tensor([1.]).to(self.device)
+                    self.mask_state_dict[name].copy_(torch.where(score <= threshold, zero, one))
+
+
+    def apply_mask(self):
+        for p, m in zip(self.model.parameters(), self.mask_state_dict):
+            p.mul_(m)
