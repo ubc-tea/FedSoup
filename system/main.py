@@ -28,7 +28,6 @@ from flcore.servers.serverdyn import FedDyn
 from flcore.servers.servermoon import MOON
 from flcore.servers.serverbabu import FedBABU
 from flcore.servers.serverapple import APPLE
-
 from flcore.servers.serversoup import FedSoup
 from flcore.servers.serverbabusoup import FedBABUSoup
 
@@ -36,7 +35,6 @@ from flcore.trainmodel.models import *
 
 from flcore.trainmodel.bilstm import BiLSTM_TextClassification
 
-# from flcore.trainmodel.resnet import resnet18 as resnet
 from flcore.trainmodel.alexnet import alexnet
 from flcore.trainmodel.mobilenet_v2 import mobilenet_v2
 from utils.result_utils import average_data
@@ -92,7 +90,6 @@ def run(args):
                 args.model = FedAvgCNN(
                     in_features=3, num_classes=args.num_classes, dim=1600
                 ).to(args.device)
-                # args.model = CifarNet(num_classes=args.num_classes).to(args.device)
             elif args.dataset == "Digit5":
                 args.model = Digit5CNN().to(args.device)
             else:
@@ -117,38 +114,19 @@ def run(args):
                 pretrained=False, num_classes=args.num_classes
             ).to(args.device)
 
-            # args.model = torchvision.models.resnet18(pretrained=True).to(args.device)
-            # feature_dim = list(args.model.fc.parameters())[0].shape[1]
-            # args.model.fc = nn.Linear(feature_dim, args.num_classes).to(args.device)
-
-            # args.model = resnet18(num_classes=args.num_classes, has_bn=True, bn_block_num=4).to(args.device)
-
         elif model_str == "alexnet":
             args.model = alexnet(pretrained=False, num_classes=args.num_classes).to(
                 args.device
             )
-
-            # args.model = alexnet(pretrained=True).to(args.device)
-            # feature_dim = list(args.model.fc.parameters())[0].shape[1]
-            # args.model.fc = nn.Linear(feature_dim, args.num_classes).to(args.device)
-
         elif model_str == "googlenet":
             args.model = torchvision.models.googlenet(
                 pretrained=False, aux_logits=False, num_classes=args.num_classes
             ).to(args.device)
 
-            # args.model = torchvision.models.googlenet(pretrained=True, aux_logits=False).to(args.device)
-            # feature_dim = list(args.model.fc.parameters())[0].shape[1]
-            # args.model.fc = nn.Linear(feature_dim, args.num_classes).to(args.device)
-
         elif model_str == "mobilenet_v2":
             args.model = mobilenet_v2(
                 pretrained=False, num_classes=args.num_classes
             ).to(args.device)
-
-            # args.model = mobilenet_v2(pretrained=True).to(args.device)
-            # feature_dim = list(args.model.fc.parameters())[0].shape[1]
-            # args.model.fc = nn.Linear(feature_dim, args.num_classes).to(args.device)
 
         elif model_str == "lstm":
             args.model = LSTMNet(

@@ -376,7 +376,7 @@ class Client(object):
                 x = x.to(self.device)
             y = y.to(self.device)
             output = self.model(x)
-            loss = self.loss(output, y).item() * y.shape[0]
+            loss = self.loss(output, y)
             loss.backward()
 
         # calculate score
@@ -418,5 +418,5 @@ class Client(object):
                     )
 
     def apply_mask(self):
-        for p, m in zip(self.model.parameters(), self.mask_state_dict):
-            p.mul_(m)
+        for name, param in self.model.named_parameters():
+            param.data = param.data.clone().mul_(self.mask_state_dict[name])

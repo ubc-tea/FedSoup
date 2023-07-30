@@ -13,7 +13,7 @@
 # CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedRep -gr 1000 -did 0 -eg 100 -go fedrep_debug -nc 5 -lr 1e-3 | tee ../tmp/tiny_camelyon17/fedrep_debug_console.output &
 # CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedBABU -gr 1000 -did 0 -eg 100 -go fedbabu_debug -nc 5 -lr 1e-3 | tee ../tmp/tiny_camelyon17/fedbabu_debug_console.output &
 
-CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 | tee ../tmp/tiny_camelyon17/fedsoup_debug_console.output &
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning | tee ../tmp/tiny_camelyon17/fedsoup_debug_console.output &
 
 echo "Running scripts in parallel"
 wait # This will wait until all scripts finish
