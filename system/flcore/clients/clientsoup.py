@@ -54,6 +54,9 @@ class clientSoup(Client):
         if self.train_round == 0 and self.pruning:
             self.gen_mask(sparsity_ratio=self.sparsity_ratio)
 
+        if self.pruning:
+            self.apply_mask()
+
         self.train_round += 1
         for step in range(max_local_steps):
             for i, (x, y) in enumerate(trainloader):
@@ -73,6 +76,15 @@ class clientSoup(Client):
 
                 if self.pruning:
                     self.apply_mask()
+
+                    # tmp check pruning ratio
+                    # num_nonzone = 0.
+                    # num_total = 0.
+                    # for param in self.model.parameters():
+                    #     num_nonzone += torch.count_nonzero(param.data)
+                    #     num_total += torch.numel(param.data)
+                    # if i % 10 == 0:
+                    #     print("Nonzero ratio: ", num_nonzone / num_total)
 
         # self.model.cpu()
         if self.train_round > self.wa_alpha * self.tot_round:

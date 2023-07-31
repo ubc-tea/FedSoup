@@ -13,7 +13,22 @@
 # CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedRep -gr 1000 -did 0 -eg 100 -go fedrep_debug -nc 5 -lr 1e-3 | tee ../tmp/tiny_camelyon17/fedrep_debug_console.output &
 # CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedBABU -gr 1000 -did 0 -eg 100 -go fedbabu_debug -nc 5 -lr 1e-3 | tee ../tmp/tiny_camelyon17/fedbabu_debug_console.output &
 
-CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning | tee ../tmp/tiny_camelyon17/fedsoup_debug_console.output &
+# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 | tee ../tmp/tiny_camelyon17/fedsoup_debug_console.output &
+
+# =========================================================
+# debugging pruning
+
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p9_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.9 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p9_debug_console.output &
+
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p8_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.8 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p8_debug_console.output &
+
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p5_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.5 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p5_debug_console.output &
+
+# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_p9_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.9 | tee ../tmp/tiny_camelyon17/fedsoup_p9_debug_console.output &
+
+# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_p8_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.8 | tee ../tmp/tiny_camelyon17/fedsoup_p8_debug_console.output &
+
+# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_p5_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.5 | tee ../tmp/tiny_camelyon17/fedsoup_p5_debug_console.output &
 
 echo "Running scripts in parallel"
 wait # This will wait until all scripts finish

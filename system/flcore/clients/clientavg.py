@@ -18,6 +18,8 @@ class clientAVG(Client):
 
         self.learning_rate_decay = args.learning_rate_decay
 
+        self.train_round = 0
+
     def train(self):
         trainloader = self.load_train_data()
         # self.model.to(self.device)
@@ -35,6 +37,13 @@ class clientAVG(Client):
         if self.train_slow:
             max_local_steps = np.random.randint(1, max_local_steps // 2)
 
+        if self.train_round == 0 and self.pruning:
+            self.gen_mask(sparsity_ratio=self.sparsity_ratio)
+        
+        if self.pruning:
+            self.apply_mask()
+
+        self.train_round += 1
         for step in range(max_local_steps):
             for i, (x, y) in enumerate(trainloader):
                 if type(x) == type([]):
@@ -50,6 +59,9 @@ class clientAVG(Client):
                 loss.backward()
                 self.optimizer.step()
 
+                if self.pruning:
+                    self.apply_mask()
+        
         # self.model.cpu()
 
         self.train_time_cost["num_rounds"] += 1
