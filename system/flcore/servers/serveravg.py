@@ -42,7 +42,6 @@ class FedAvg(Server):
             if i % self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
                 print("\nEvaluate global model")
-                self.evaluate()
                 self.evaluate(ood_eval=True)
 
             for client in self.selected_clients:
@@ -75,7 +74,6 @@ class FedAvg(Server):
         print(sum(self.Budget[1:]) / len(self.Budget[1:]))
 
         print("\nEvaluating Post-Fine-Tuning and OOD Performance...")
-        self.evaluate()
         self.evaluate(ood_eval=True)
 
         # ================= new function =================
@@ -116,7 +114,6 @@ class FedAvg(Server):
             # [t.join() for t in threads]
 
             print("\nFine-Tuning Iteration: ", ft_idx)
-            self.evaluate()
             self.evaluate(ood_eval=True)
 
         # print("\nFine-Tuning with the Best Trained Model......")
@@ -130,7 +127,6 @@ class FedAvg(Server):
         #     [t.start() for t in threads]
         #     [t.join() for t in threads]
         #     print("\nFine-Tuning Iteration: ", ft_idx)
-        #     self.evaluate()
         #     self.evaluate(ood_eval=True)
 
         self.save_results()

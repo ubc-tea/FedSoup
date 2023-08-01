@@ -39,6 +39,8 @@ class Server(object):
         self.uploaded_ids = []
         self.uploaded_models = []
 
+        self.uploaded_masks = []
+
         self.rs_test_acc = []
         self.rs_test_auc = []
         # self.rs_train_loss = []
@@ -60,6 +62,8 @@ class Server(object):
             self.num_clients = args.num_clients
         else:
             self.num_clients = args.num_clients + 1
+        
+        self.pruning = args.pruning
 
     def set_clients(self, args, clientObj):
         for i, train_slow, send_slow in zip(
@@ -112,10 +116,30 @@ class Server(object):
     def send_models(self):
         assert len(self.clients) > 0
 
+        if self.pruning and len(self.uploaded_masks) > 0:
+            self.global_mask_state_dict = copy.deepcopy(self.uploaded_masks[0])
+            for mask in self.uploaded_masks[1:]:
+                for name in mask.keys():
+                    self.global_mask_state_dict[name] += mask[name]
+
+            tot_samples = 0
+            for client in self.clients:
+                tot_samples += client.train_samples
+
         for client in self.clients:
             start_time = time.time()
 
-            client.set_parameters(self.global_model)
+            if self.pruning and len(self.uploaded_masks) > 0:
+                self.rescaled_global_model = copy.deepcopy(self.global_model)
+                for name, param in self.rescaled_global_model.named_parameters():
+                    client_w = client.train_samples / tot_samples
+                    scaling_p = client.mask_state_dict[name] / self.global_mask_state_dict[name]
+                    # avoid nan and inf, when dividing 0
+                    scaling_p = torch.nan_to_num(scaling_p.clone(), posinf=0, neginf=0)
+                    param.data = (param.data.clone() / client_w) * scaling_p
+                client.set_parameters(self.rescaled_global_model)
+            else:
+                client.set_parameters(self.global_model)
 
             client.send_time_cost["num_rounds"] += 1
             client.send_time_cost["total_cost"] += 2 * (time.time() - start_time)
@@ -129,6 +153,10 @@ class Server(object):
 
         self.uploaded_weights = []
         self.uploaded_models = []
+
+        # only have this attribute after receiving model
+        self.uploaded_masks = []
+
         tot_samples = 0
         for client in active_clients:
             client_time_cost = client.train_time_cost["total_cost"] / (
@@ -140,6 +168,10 @@ class Server(object):
                 tot_samples += client.train_samples
                 self.uploaded_weights.append(client.train_samples)
                 self.uploaded_models.append(client.model)
+
+                if self.pruning:
+                    self.uploaded_masks.append(client.mask_state_dict)
+
         for i, w in enumerate(self.uploaded_weights):
             self.uploaded_weights[i] = w / tot_samples
 

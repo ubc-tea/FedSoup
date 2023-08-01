@@ -43,19 +43,18 @@ class clientSoup(Client):
 
         start_time = time.time()
 
+        if self.train_round == 0 and self.pruning:
+            self.gen_mask(sparsity_ratio=self.sparsity_ratio)
+
+        if self.pruning:
+            self.apply_mask()
+
         self.last_global_model = copy.deepcopy(self.model)
         self.last_global_model.load_state_dict(self.model.state_dict())
 
         max_local_steps = self.local_steps
         if self.train_slow:
             max_local_steps = np.random.randint(1, max_local_steps // 2)
-
-        # TODO: pruning fixed mask
-        if self.train_round == 0 and self.pruning:
-            self.gen_mask(sparsity_ratio=self.sparsity_ratio)
-
-        if self.pruning:
-            self.apply_mask()
 
         self.train_round += 1
         for step in range(max_local_steps):

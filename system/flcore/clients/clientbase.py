@@ -365,10 +365,11 @@ class Client(object):
 
     # only support SNIP currently
     def gen_mask(self, algo="SNIP", sparsity_ratio=0.9, layerwise=False):
-        self.mask_state_dict = self.model.state_dict()
+        self.mask_state_dict = copy.deepcopy(self.model.state_dict())
 
         # compute gradient
         trainloader = self.load_train_data()
+        self.model.train()
         for x, y in trainloader:
             if type(x) == type([]):
                 x[0] = x[0].to(self.device)
@@ -390,11 +391,11 @@ class Client(object):
         # normalize score
         all_scores = torch.cat([torch.flatten(v) for v in self.scores.values()])
         norm = torch.sum(all_scores)
-        for name, _ in self.model.named_parameters():
+        for name in self.scores.keys():
             self.scores[name].div_(norm)
 
         if layerwise:
-            for name, param in self.model.named_parameters():
+            for name in self.scores.keys():
                 score = self.scores[name]
                 k = int(sparsity_ratio * score.numel())
                 if not k < 1:
@@ -409,7 +410,7 @@ class Client(object):
             k = int(sparsity_ratio * global_scores.numel())
             if not k < 1:
                 threshold, _ = torch.kthvalue(global_scores, k)
-                for name, param in self.model.named_parameters():
+                for name in self.scores.keys():
                     score = self.scores[name]
                     zero = torch.tensor([0.0]).to(self.device)
                     one = torch.tensor([1.0]).to(self.device)
