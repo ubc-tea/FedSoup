@@ -37,10 +37,9 @@ class clientAVG(Client):
         if self.train_slow:
             max_local_steps = np.random.randint(1, max_local_steps // 2)
 
-        if self.train_round == 0 and self.pruning:
-            self.gen_mask(sparsity_ratio=self.sparsity_ratio)
-        
         if self.pruning:
+            if self.dynamic_mask or self.train_round == 0:
+                self.gen_mask(sparsity_ratio=self.sparsity_ratio, algo=self.pruning_algo)
             self.apply_mask()
 
         self.train_round += 1

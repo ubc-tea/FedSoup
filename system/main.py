@@ -519,14 +519,18 @@ if __name__ == "__main__":
         "--pruning",
         default=False,
         action=argparse.BooleanOptionalAction,
-        help="training with sparse neural network.",
+        help="training with sparse neural network."
     )
     parser.add_argument(
         "--sparsity_ratio",
         type=float,
         default=0.9,
-        help="Sparsity ratio of pruned neural network.",
+        help="Sparsity ratio of pruned neural network."
     )
+    parser.add_argument("--pruning_algo", type=str, default="SNIP", help="Scoring criterion [rand, grad, mag, SNIP, GraSP] for weight pruning.")
+    parser.add_argument("--dynamic_mask", default=False,
+        action=argparse.BooleanOptionalAction,
+        help="training with sparse neural network with fixed or dynamic mask (update each communication round).")
 
     args = parser.parse_args()
 

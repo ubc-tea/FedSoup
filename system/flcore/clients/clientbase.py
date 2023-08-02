@@ -65,6 +65,8 @@ class Client(object):
 
         self.pruning = args.pruning
         self.sparsity_ratio = args.sparsity_ratio
+        self.pruning_algo = args.pruning_algo
+        self.dynamic_mask = args.dynamic_mask
 
     def load_train_data(self, batch_size=None):
         if batch_size == None:
@@ -367,24 +369,34 @@ class Client(object):
     def gen_mask(self, algo="SNIP", sparsity_ratio=0.9, layerwise=False):
         self.mask_state_dict = copy.deepcopy(self.model.state_dict())
 
-        # compute gradient
-        trainloader = self.load_train_data()
-        self.model.train()
-        for x, y in trainloader:
-            if type(x) == type([]):
-                x[0] = x[0].to(self.device)
-            else:
-                x = x.to(self.device)
-            y = y.to(self.device)
-            output = self.model(x)
-            loss = self.loss(output, y)
-            loss.backward()
+        if algo == "grad" or algo == "SNIP":
+            # compute gradient
+            trainloader = self.load_train_data()
+            self.model.train()
+            for x, y in trainloader:
+                if type(x) == type([]):
+                    x[0] = x[0].to(self.device)
+                else:
+                    x = x.to(self.device)
+                y = y.to(self.device)
+                output = self.model(x)
+                loss = self.loss(output, y)
+                loss.backward()
+        # TODO
+        elif algo == "GraSP":
+            raise ValueError("Not implemented.")
 
         # calculate score
         self.scores = {}
         for name, param in self.model.named_parameters():
-            if algo == "SNIP":
+            if algo == "grad":
                 self.scores[name] = torch.clone(param.grad.data).detach().abs_()
+            elif algo == "mag":
+                self.scores[name] = torch.clone(param.data).detach().abs_()
+            elif algo == "rand":
+                self.scores[name] = torch.randn_like(param.data).detach().abs_()
+            elif algo == "SNIP" or algo == "GraSP":
+                self.scores[name] = torch.clone(param.grad.data * param.data).detach().abs_()
             else:
                 raise ValueError("Not implemented.")
 
@@ -419,5 +431,9 @@ class Client(object):
                     )
 
     def apply_mask(self):
+        # note: only apply mask in conv and linear
+        # TODO: to support vit layers
         for name, param in self.model.named_parameters():
+            print("name: ", name)
             param.data = param.data.clone().mul_(self.mask_state_dict[name])
+        exit(1)

@@ -43,10 +43,9 @@ class clientSoup(Client):
 
         start_time = time.time()
 
-        if self.train_round == 0 and self.pruning:
-            self.gen_mask(sparsity_ratio=self.sparsity_ratio)
-
         if self.pruning:
+            if self.dynamic_mask or self.train_round == 0:
+                self.gen_mask(sparsity_ratio=self.sparsity_ratio, algo=self.pruning_algo)
             self.apply_mask()
 
         self.last_global_model = copy.deepcopy(self.model)
