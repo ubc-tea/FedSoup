@@ -19,16 +19,18 @@
 # debugging pruning
 
 # FedAvg Pruning
-CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p9_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.9 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p9_debug_console.output &
+# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p9_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.9 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p9_debug_console.output &
 
-CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p8_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.8 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p8_debug_console.output &
+# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p8_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.8 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p8_debug_console.output &
 
-CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p5_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.5 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p5_debug_console.output &
+# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p5_debug_0 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.5 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p5_debug_console.output &
 
 # CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedAvg -gr 1000 -did 0 -eg 100 -go fedavg_p0_debug_0 -nc 5 -lr 1e-3 2>&1 | tee ../tmp/tiny_camelyon17/fedavg_p0_debug_console.output &
 
 # FedSoup Pruning
-# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_p9_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.9 | tee ../tmp/tiny_camelyon17/fedsoup_p9_debug_console.output &
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 50 -go fedsoup_p9_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.9 | tee ../tmp/tiny_camelyon17/fedsoup_p9_debug_console.output &
+
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 50 -go fedsoup_p9_dm_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.9 --dynamic_mask | tee ../tmp/tiny_camelyon17/fedsoup_p9_dm_debug_console.output &
 
 # CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_p8_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.8 | tee ../tmp/tiny_camelyon17/fedsoup_p8_debug_console.output &
 

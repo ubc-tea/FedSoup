@@ -382,6 +382,9 @@ class Client(object):
                 output = self.model(x)
                 loss = self.loss(output, y)
                 loss.backward()
+                # only using one batch when using dynamic mask
+                if self.dynamic_mask:
+                    break
         # TODO
         elif algo == "GraSP":
             raise ValueError("Not implemented.")
@@ -389,16 +392,18 @@ class Client(object):
         # calculate score
         self.scores = {}
         for name, param in self.model.named_parameters():
-            if algo == "grad":
-                self.scores[name] = torch.clone(param.grad.data).detach().abs_()
-            elif algo == "mag":
-                self.scores[name] = torch.clone(param.data).detach().abs_()
-            elif algo == "rand":
-                self.scores[name] = torch.randn_like(param.data).detach().abs_()
-            elif algo == "SNIP" or algo == "GraSP":
-                self.scores[name] = torch.clone(param.grad.data * param.data).detach().abs_()
-            else:
-                raise ValueError("Not implemented.")
+            # TODO: currently only support conv-net, and need tuning for support different param naming type
+            if 'weight' in name and ('conv' in name or 'fc' in name):
+                if algo == "grad":
+                    self.scores[name] = torch.clone(param.grad.data).detach().abs_()
+                elif algo == "mag":
+                    self.scores[name] = torch.clone(param.data).detach().abs_()
+                elif algo == "rand":
+                    self.scores[name] = torch.randn_like(param.data).detach().abs_()
+                elif algo == "SNIP" or algo == "GraSP":
+                    self.scores[name] = torch.clone(param.grad.data * param.data).detach().abs_()
+                else:
+                    raise ValueError("Not implemented.")
 
         # normalize score
         all_scores = torch.cat([torch.flatten(v) for v in self.scores.values()])
@@ -434,6 +439,5 @@ class Client(object):
         # note: only apply mask in conv and linear
         # TODO: to support vit layers
         for name, param in self.model.named_parameters():
-            print("name: ", name)
-            param.data = param.data.clone().mul_(self.mask_state_dict[name])
-        exit(1)
+            if 'weight' in name and ('conv' in name or 'fc' in name):
+                param.data = param.data.clone().mul_(self.mask_state_dict[name])
