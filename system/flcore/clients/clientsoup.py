@@ -44,7 +44,7 @@ class clientSoup(Client):
         start_time = time.time()
 
         if self.pruning:
-            if self.dynamic_mask or self.train_round == 0:
+            if self.dynamic_mask or self.train_round == self.pruning_warmup_round:
                 self.gen_mask(sparsity_ratio=self.sparsity_ratio, algo=self.pruning_algo)
             self.apply_mask()
 
@@ -72,7 +72,7 @@ class clientSoup(Client):
                 loss.backward()
                 self.optimizer.step()
 
-                if self.pruning:
+                if self.pruning and self.train_round > self.pruning_warmup_round:
                     self.apply_mask()
 
                     # tmp check pruning ratio

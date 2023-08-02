@@ -67,6 +67,7 @@ class Client(object):
         self.sparsity_ratio = args.sparsity_ratio
         self.pruning_algo = args.pruning_algo
         self.dynamic_mask = args.dynamic_mask
+        self.pruning_warmup_round = args.pruning_warmup_round
 
     def load_train_data(self, batch_size=None):
         if batch_size == None:

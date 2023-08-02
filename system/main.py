@@ -531,6 +531,7 @@ if __name__ == "__main__":
     parser.add_argument("--dynamic_mask", default=False,
         action=argparse.BooleanOptionalAction,
         help="training with sparse neural network with fixed or dynamic mask (update each communication round).")
+    parser.add_argument("--pruning_warmup_round", type=int, default=0, help="Warmup communication round before pruning.")
 
     args = parser.parse_args()
 
