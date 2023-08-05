@@ -40,7 +40,8 @@ class clientAVG(Client):
         if self.pruning:
             if self.dynamic_mask or self.train_round == 0:
                 self.gen_mask(sparsity_ratio=self.sparsity_ratio, algo=self.pruning_algo)
-            self.apply_mask()
+            if not self.masking_grad:
+                self.apply_mask(masking_grad=False)
 
         self.train_round += 1
         for step in range(max_local_steps):
@@ -56,12 +57,11 @@ class clientAVG(Client):
                 output = self.model(x)
                 loss = self.loss(output, y)
                 loss.backward()
-                self.optimizer.step()
 
-                if self.pruning:
+                if self.pruning and self.train_round > self.pruning_warmup_round:
                     self.apply_mask()
-        
-        # self.model.cpu()
+                
+                self.optimizer.step()
 
         self.train_time_cost["num_rounds"] += 1
         self.train_time_cost["total_cost"] += time.time() - start_time

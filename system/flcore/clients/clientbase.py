@@ -68,6 +68,7 @@ class Client(object):
         self.pruning_algo = args.pruning_algo
         self.dynamic_mask = args.dynamic_mask
         self.pruning_warmup_round = args.pruning_warmup_round
+        self.masking_grad = args.masking_grad
 
     def load_train_data(self, batch_size=None):
         if batch_size == None:
@@ -436,9 +437,12 @@ class Client(object):
                         torch.where(score <= threshold, zero, one)
                     )
 
-    def apply_mask(self):
+    def apply_mask(self, masking_grad=True):
         # note: only apply mask in conv and linear
         # TODO: to support vit layers
         for name, param in self.model.named_parameters():
             if 'weight' in name and ('conv' in name or 'fc' in name):
-                param.data = param.data.clone().mul_(self.mask_state_dict[name])
+                if masking_grad:
+                    param.grad.data = param.grad.data.clone().mul_(self.mask_state_dict[name])
+                else:
+                    param.data = param.data.clone().mul_(self.mask_state_dict[name])

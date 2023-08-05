@@ -43,10 +43,11 @@ class clientSoup(Client):
 
         start_time = time.time()
 
-        if self.pruning:
+        if self.pruning and self.train_round >= self.pruning_warmup_round:
             if self.dynamic_mask or self.train_round == self.pruning_warmup_round:
                 self.gen_mask(sparsity_ratio=self.sparsity_ratio, algo=self.pruning_algo)
-            self.apply_mask()
+            if not self.masking_grad:
+                self.apply_mask(masking_grad=False)
 
         self.last_global_model = copy.deepcopy(self.model)
         self.last_global_model.load_state_dict(self.model.state_dict())
@@ -70,21 +71,21 @@ class clientSoup(Client):
                 loss = self.loss(output, y)
 
                 loss.backward()
-                self.optimizer.step()
 
                 if self.pruning and self.train_round > self.pruning_warmup_round:
                     self.apply_mask()
 
-                    # tmp check pruning ratio
-                    # num_nonzone = 0.
-                    # num_total = 0.
-                    # for param in self.model.parameters():
-                    #     num_nonzone += torch.count_nonzero(param.data)
-                    #     num_total += torch.numel(param.data)
-                    # if i % 10 == 0:
-                    #     print("Nonzero ratio: ", num_nonzone / num_total)
+                self.optimizer.step()
 
-        # self.model.cpu()
+                # tmp check pruning ratio
+                # num_nonzone = 0.
+                # num_total = 0.
+                # for param in self.model.parameters():
+                #     num_nonzone += torch.count_nonzero(param.data)
+                #     num_total += torch.numel(param.data)
+                # if i % 10 == 0:
+                #     print("Nonzero ratio: ", num_nonzone / num_total)
+
         if self.train_round > self.wa_alpha * self.tot_round:
             print("Begin Weight Averaging......")
 

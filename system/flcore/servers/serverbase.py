@@ -132,11 +132,15 @@ class Server(object):
             if self.pruning and len(self.uploaded_masks) > 0:
                 self.rescaled_global_model = copy.deepcopy(self.global_model)
                 for name, param in self.rescaled_global_model.named_parameters():
-                    client_w = client.train_samples / tot_samples
-                    scaling_p = client.mask_state_dict[name] / self.global_mask_state_dict[name]
-                    # avoid nan and inf, when dividing 0
-                    scaling_p = torch.nan_to_num(scaling_p.clone(), posinf=0, neginf=0)
-                    param.data = (param.data.clone() / client_w) * scaling_p
+                    # TODO: to support vit layers
+                    if 'weight' in name and ('conv' in name or 'fc' in name):
+                        client_w = client.train_samples / tot_samples
+                        scaling_p = client.mask_state_dict[name] / self.global_mask_state_dict[name]
+                        # avoid nan and inf, when dividing 0
+                        scaling_p = torch.nan_to_num(scaling_p.clone(), posinf=0, neginf=0)
+                        param.data = (param.data.clone() / client_w) * scaling_p
+                    else:
+                        param.data = param.data.clone()
                 client.set_parameters(self.rescaled_global_model)
             else:
                 client.set_parameters(self.global_model)
@@ -169,7 +173,7 @@ class Server(object):
                 self.uploaded_weights.append(client.train_samples)
                 self.uploaded_models.append(client.model)
 
-                if self.pruning:
+                if self.pruning and client.train_round > client.pruning_warmup_round:
                     self.uploaded_masks.append(client.mask_state_dict)
 
         for i, w in enumerate(self.uploaded_weights):
