@@ -532,7 +532,7 @@ if __name__ == "__main__":
         action=argparse.BooleanOptionalAction,
         help="training with sparse neural network with fixed or dynamic mask (update each communication round).")
     parser.add_argument("--pruning_warmup_round", type=int, default=0, help="Warmup communication round before pruning.")
-    parser.add_argument("--masking_grad",  default=True, action=argparse.BooleanOptionalAction, help="pruning via gradient masking but not zeroing weight (i.e., not generating sparse model but partial freezing parameters.).")
+    parser.add_argument("--masking_grad",  default=False, action=argparse.BooleanOptionalAction, help="pruning via gradient masking but not zeroing weight (i.e., not generating sparse model but partial freezing parameters.).")
 
     args = parser.parse_args()
 

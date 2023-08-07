@@ -84,7 +84,8 @@ class clientSoup(Client):
                 #     num_nonzone += torch.count_nonzero(param.data)
                 #     num_total += torch.numel(param.data)
                 # if i % 10 == 0:
-                #     print("Nonzero ratio: ", num_nonzone / num_total)
+                #     print("After update Nonzero ratio: ", num_nonzone / num_total)
+                # exit(1)
 
         if self.train_round > self.wa_alpha * self.tot_round:
             print("Begin Weight Averaging......")
