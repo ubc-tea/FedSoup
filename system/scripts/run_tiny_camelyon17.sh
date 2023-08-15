@@ -58,12 +58,11 @@
 # CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 100 -go fedsoup_p5_warmup5_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.5 --pruning_warmup_round 5 | tee ../tmp/tiny_camelyon17/fedsoup_p5_warmup5_debug_console.output &
 
 # FedSoup Gradient Masking
-CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 50 -go fedsoup_mg9_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.9 --pruning_warmup_round 750 --masking_grad --dynamic_mask | tee ../tmp/tiny_camelyon17/fedsoup_mg9_debug_console.output &
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 50 -go fedsoup_mg9_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.9 --pruning_warmup_round 500 --masking_grad --dynamic_mask | tee ../tmp/tiny_camelyon17/fedsoup_mg9_debug_console.output &
 
-# CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 50 -go fedsoup_mg8_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.8 --pruning_warmup_round 750 --masking_grad --dynamic_mask | tee ../tmp/tiny_camelyon17/fedsoup_mg5_debug_console.output &
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 50 -go fedsoup_mg8_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.8 --pruning_warmup_round 500 --masking_grad --dynamic_mask | tee ../tmp/tiny_camelyon17/fedsoup_mg8_debug_console.output &
 
-CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 50 -go fedsoup_mg5_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.5 --pruning_warmup_round 750 --masking_grad --dynamic_mask | tee ../tmp/tiny_camelyon17/fedsoup_mg5_debug_console.output &
-
+CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo FedSoup -gr 1000 -did 0 -eg 50 -go fedsoup_mg5_debug -nc 5 -lr 1e-3 -wa_alpha 0.75 --pruning --sparsity_ratio 0.5 --pruning_warmup_round 500 --masking_grad --dynamic_mask | tee ../tmp/tiny_camelyon17/fedsoup_mg5_debug_console.output &
 
 # Local Pruning
 # CUDA_VISIBLE_DEVICES=0 python -u main.py -data tiny_camelyon17 -m resnet -algo Local -gr 500 -did 0 -eg 100 -go resnet_local_p9 -nc 5 -lr 1e-3 --pruning --sparsity_ratio 0.9 | tee ../tmp/tiny_camelyon17/local_p9_debug_console.output &
