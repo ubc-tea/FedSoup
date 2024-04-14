@@ -14,7 +14,7 @@ Cross-silo federated learning (FL) enables the development of machine learning m
 
 ## Dataset and Environment Preparation
 
-Tiny Camelyon17 preprocessed dataset [download link](https://drive.google.com/file/d/1vFMEkm_l6_8KiPOayndbPEDgrek-_eZS/view?usp=drive_link).
+Tiny Camelyon17 preprocessed dataset [download link](https://drive.google.com/file/d/1vFMEkm_l6_8KiPOayndbPEDgrek-_eZS/view?usp=sharing). Retina preprocessed dataset [download link](https://drive.google.com/file/d/1Xq7Wx1ZGm4PNJSl0IYgBDuofaQETfMxm/view?usp=sharing).
 
 ```
 pip install -r requirements.txt
